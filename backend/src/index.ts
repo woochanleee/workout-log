@@ -7,7 +7,7 @@ import cors from "@koa/cors";
 import koaStatic from "koa-static";
 
 import api from "./api";
-import createFakeData from "./createFakeData";
+import jwtMiddleware from './lib/jwtMiddleware';
 
 dotenv.config();
 
@@ -38,6 +38,7 @@ router.use("/api", api.routes());
 app.use(bodyparser());
 app.use(cors());
 app.use(koaStatic("public"));
+app.use(jwtMiddleware);
 
 app.use(router.routes()).use(router.allowedMethods());
 
