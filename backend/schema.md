@@ -5,8 +5,9 @@
 | 필드 이름      | 데이터 타입    | 설명              |
 | -------------- | -------------- | ----------------- |
 | userName       | String(문자열) | 사용자 이름       |
-| hashedPassword | String(문자열) | 암호화된 비밀번호 |
-| loginType      | String(문자열) | 로그인 타입       |
+| email          | String(문자열) | 비밀번호          |
+| profileImage   | String(문자열) | 프로필 이미지 주소 |
+| loginType      | String(문자열) | 로그인 타입, ex) gg(google)       ||
 
 ## 포스트(post)
 
