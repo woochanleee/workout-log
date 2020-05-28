@@ -1,11 +1,9 @@
-import Post from "../../models/post";
-import fs from "fs";
-import path from "path";
-import { v1 as uuidv1 } from "uuid";
-import { Context } from "koa";
-import { extensionList } from "../../../../utils/extensionList";
-import recomment from "./comments/recomments";
-import Joi from "joi";
+import Post from '../../models/post';
+import fs from 'fs';
+import { v1 as uuidv1 } from 'uuid';
+import { Context } from 'koa';
+import { extensionList } from '../../../../utils/extensionList';
+import Joi from 'joi';
 
 // console.log(fs.lstatSync("./public").isDirectory()); // upload 존재, /upload 존재./upload존재
 // ./src, src 가능 /src는 없다고 나옴 이게 대부분 인듯함
@@ -22,6 +20,7 @@ import Joi from "joi";
 export const write = async (ctx: any) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
+    body: Joi.string().required(),
     files: Joi.any(),
     tags: Joi.array().items(Joi.string()),
     isPrivate: Joi.boolean().required(),
@@ -31,7 +30,7 @@ export const write = async (ctx: any) => {
       ...ctx.request.body,
       files: ctx.request.files.files,
     },
-    schema
+    schema,
   );
   if (result.error) {
     ctx.status = 400;
@@ -70,7 +69,7 @@ export const write = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
+        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -85,7 +84,7 @@ export const write = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: "허용되지 않은 확장자",
+            error: '허용되지 않은 확장자',
           };
           return;
         }
@@ -96,7 +95,7 @@ export const write = async (ctx: any) => {
       await saveDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
+      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -113,7 +112,7 @@ export const write = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: "허용되지 않은 확장자",
+          error: '허용되지 않은 확장자',
         };
         return;
       }
@@ -133,7 +132,7 @@ export const write = async (ctx: any) => {
   GET /api/posts
 */
 export const list = async (ctx: Context) => {
-  const page = parseInt(ctx.query.page || "1", 10);
+  const page = parseInt(ctx.query.page || '1', 10);
 
   if (page < 1) {
     ctx.status = 400;
@@ -149,7 +148,7 @@ export const list = async (ctx: Context) => {
       .skip((page - 1) * 10)
       .exec();
     const postCount: number = await Post.countDocuments().exec();
-    ctx.set("Last-Page", Math.ceil(postCount / 10).toString());
+    ctx.set('Last-Page', Math.ceil(postCount / 10).toString());
     ctx.body = posts
       .map((post) => post.toJSON())
       .map((post) => ({
@@ -228,7 +227,7 @@ export const update = async (ctx: any) => {
       ...ctx.request.body,
       files: ctx.request.files.files,
     },
-    schema
+    schema,
   );
   if (result.error) {
     ctx.status = 400;
@@ -261,7 +260,7 @@ export const update = async (ctx: any) => {
         },
         {
           new: true,
-        }
+        },
       );
 
       ctx.body = post;
@@ -281,7 +280,7 @@ export const update = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
+        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -296,7 +295,7 @@ export const update = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: "허용되지 않은 확장자",
+            error: '허용되지 않은 확장자',
           };
           return;
         }
@@ -307,7 +306,7 @@ export const update = async (ctx: any) => {
       await updateDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
+      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -324,7 +323,7 @@ export const update = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: "허용되지 않은 확장자",
+          error: '허용되지 않은 확장자',
         };
         return;
       }
@@ -341,11 +340,11 @@ export const update = async (ctx: any) => {
 };
 
 const mkdirFile = (path: string) => {
-  let pathList = path.split("/");
-  let fileDir = "./public";
+  let pathList = path.split('/');
+  let fileDir = './public';
   pathList.forEach((i) => {
     if (i) {
-      fileDir += "/" + i;
+      fileDir += '/' + i;
       try {
         fs.lstatSync(fileDir).isDirectory();
       } catch (e) {
@@ -360,10 +359,10 @@ const saveFile = (file: any, path: string) => {
     let render = fs.createReadStream(file.path);
     let upStream = fs.createWriteStream(`./public/${path}`);
     render.pipe(upStream);
-    upStream.on("finish", () => {
+    upStream.on('finish', () => {
       resolve(path);
     });
-    upStream.on("error", (err) => {
+    upStream.on('error', (err) => {
       reject(err);
     });
   });
