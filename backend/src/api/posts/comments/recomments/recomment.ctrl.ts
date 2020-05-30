@@ -20,6 +20,13 @@ export const write = async (ctx: any) => {
   }
   const { id, comment_id } = ctx.params;
   const { text } = ctx.request.body;
+  if (text.length < 1 || text.length > 50) {
+    ctx.status = 400;
+    ctx.body = {
+      error: '댓글은 1자 이상 50자 이하입니다.'
+    }
+    return;
+  }
   const post: any = new Post();
   try {
     const postDoc: any = await Post.findOne({ id }).exec();
