@@ -4,8 +4,15 @@ import jwt from 'jsonwebtoken';
 const UserSchema: Schema = new Schema({
   username: String,
   email: String,
-  profileImage: String,
+  profileImage: {
+    type: String,
+    default: 'default.PNG'
+  },
   loginType: String,
+  workoutDays: {
+    type: Number,
+    default: 0
+  },
 });
 
 interface IUserDocument extends Document {
@@ -13,6 +20,7 @@ interface IUserDocument extends Document {
   email: String;
   profileImage: String;
   loginType: String;
+  workoutDays: Number;
 }
 
 interface IUser extends IUserDocument {
@@ -30,10 +38,10 @@ UserSchema.static('findByEmail', function (email: string) {
 UserSchema.method('generateToken', function () {
   const token = jwt.sign( 
     {
-      _id: this.id,
       email: this.email,
       username: this.username,
       loginType: this.loginType,
+      workoutDays: this.workoutDays
     },
     process.env.JWT_SECRET,
     {
