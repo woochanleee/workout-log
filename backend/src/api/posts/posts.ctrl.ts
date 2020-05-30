@@ -1,12 +1,11 @@
-import Post from '../../models/post';
-import fs from 'fs';
-import { v1 as uuidv1 } from 'uuid';
-import { Context } from 'koa';
-import { extensionList } from '../../../../utils/extensionList';
-import Joi from 'joi';
+import Post from "../../models/post";
+import fs from "fs";
+import { v1 as uuidv1 } from "uuid";
+import { Context } from "koa";
+import { extensionList } from "../../../../utils/extensionList";
+import Joi from "joi";
+import User from "../../models/user";
 
-// console.log(fs.lstatSync("./public").isDirectory()); // upload 존재, /upload 존재./upload존재
-// ./src, src 가능 /src는 없다고 나옴 이게 대부분 인듯함
 /*
   POST /api/posts
   {
@@ -30,7 +29,7 @@ export const write = async (ctx: any) => {
       ...ctx.request.body,
       files: ctx.request.files.files,
     },
-    schema,
+    schema
   );
   if (result.error) {
     ctx.status = 400;
@@ -44,10 +43,65 @@ export const write = async (ctx: any) => {
   const files = ctx.request.files.files;
   const fileDir = `upload/${time.getFullYear().toString()}/${month}`;
   const filesData: Array<string> = [];
-
+  
   const saveDatabase = async () => {
+    let user;
     try {
-      const lastPost = await Post.findOne().sort({ publishedDate: -1 }).exec();
+      const lastPost: any = await Post.findOne().sort({ publishedDate: -1 }).exec();
+      const userState = ctx.state.user;
+      if (!lastPost) {
+         user = await User.findOneAndUpdate(
+          { email: userState.email },
+          {
+            workoutDays: 1
+          },
+          {
+            new: true
+          }
+         );
+      } else {
+        const ONE_DAYS_GAP = 86400000;  
+        const lastPostTime = new Date(lastPost.publishedDate.toString());
+
+        let year = lastPostTime.getFullYear().toString(),
+          month = lastPostTime.getMonth() + 1 < 10 ? `0${lastPostTime.getMonth() + 1}` : (lastPostTime.getMonth() + 1).toString(),
+          date = lastPostTime.getDate() + 1 < 10 ? `0${lastPostTime.getDate()}` : lastPostTime.getDate().toString();
+        
+        const formatedLastTime = [year, month, date].join('-');
+        const publishedDate = new Date(formatedLastTime).getTime().toString();
+
+        const nowTime = new Date();
+
+        year = nowTime.getFullYear().toString(),
+        month = nowTime.getMonth() + 1 < 10 ? `0${nowTime.getMonth() + 1}` : (nowTime.getMonth() + 1).toString(),
+        date = nowTime.getDate() + 1 < 10 ? `0${nowTime.getDate()}` : nowTime.getDate().toString();
+
+        const formatedNowTime = [year, month, date].join('-');
+        const nowDate = new Date(formatedNowTime).getTime().toString();
+        if (parseInt(nowDate) - parseInt(publishedDate) === ONE_DAYS_GAP) {
+          user = await User.findOneAndUpdate(
+            { email: userState.email },
+            {
+              workoutDays: userState.workoutDays + 1
+            },
+            {
+              new: true
+            }
+          );
+        } else if (parseInt(nowDate) - parseInt(publishedDate) > ONE_DAYS_GAP) {
+          user = await User.findOneAndUpdate(
+            { email: userState.email },
+            {
+              workoutDays: 0
+            },
+            {
+              new: true
+            }
+          );
+        } else {
+          user = userState
+        }
+      }
       const post = new Post({
         id: lastPost ? lastPost.id + 1 : 1,
         title,
@@ -55,6 +109,8 @@ export const write = async (ctx: any) => {
         tags,
         files: filesData,
         isPrivate,
+        user,
+        comments: []
       });
       await post.save();
       ctx.body = post;
@@ -69,7 +125,7 @@ export const write = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
+        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -84,7 +140,7 @@ export const write = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: '허용되지 않은 확장자',
+            error: "허용되지 않은 확장자",
           };
           return;
         }
@@ -95,7 +151,7 @@ export const write = async (ctx: any) => {
       await saveDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
+      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -112,7 +168,7 @@ export const write = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: '허용되지 않은 확장자',
+          error: "허용되지 않은 확장자",
         };
         return;
       }
@@ -129,26 +185,43 @@ export const write = async (ctx: any) => {
 };
 
 /*
-  GET /api/posts
+  GET /api/posts?username=&tag=&page=
 */
 export const list = async (ctx: Context) => {
-  const page = parseInt(ctx.query.page || '1', 10);
+  const page = parseInt(ctx.query.page || "1", 10);
 
   if (page < 1) {
     ctx.status = 400;
     return;
   }
+ 
+  const { username, tag, email } = ctx.query;
+  const query = {
+    ...(username ? { 'user.username': username } : {}),
+    ...(tag ? { tags: tag } : {}),
+    ...(email ? { 'user.email': email } : {}),
+    
+  };
 
   try {
-    const posts = await Post.find()
+    let posts = await Post.find({ isPrivate: false, ...query })
       .sort({
         id: -1,
       })
-      .limit(10)
-      .skip((page - 1) * 10)
       .exec();
-    const postCount: number = await Post.countDocuments().exec();
-    ctx.set('Last-Page', Math.ceil(postCount / 10).toString());
+    if (ctx.state.user) {
+      let myPosts = await Post.find({ ...query, 'user.email': ctx.state.user && ctx.state.user.email })
+      .sort({
+        id: -1.
+      })
+      .exec();
+      posts = posts.concat(myPosts).filter((p1, i, arr) =>
+        arr.findIndex((p2) => p1.id === p2.id) === i
+      );
+    }
+    const postCount: number = posts.length;
+    posts = posts.slice((page - 1) * 10, page * 10).sort((a, b) => (b.id - a.id));
+    ctx.set("Last-Page", Math.ceil(postCount / 10).toString());
     ctx.body = posts
       .map((post) => post.toJSON())
       .map((post) => ({
@@ -165,17 +238,7 @@ export const list = async (ctx: Context) => {
   GET /api/posts/:id
 */
 export const read = async (ctx: Context) => {
-  const { id } = ctx.params;
-  try {
-    const post = await Post.findOne({ id }).exec();
-    if (!post) {
-      ctx.status = 404;
-      return;
-    }
-    ctx.body = post;
-  } catch (e) {
-    ctx.throw(500, e);
-  }
+  ctx.body = ctx.state.post;
 };
 
 /*
@@ -227,7 +290,7 @@ export const update = async (ctx: any) => {
       ...ctx.request.body,
       files: ctx.request.files.files,
     },
-    schema,
+    schema
   );
   if (result.error) {
     ctx.status = 400;
@@ -260,7 +323,7 @@ export const update = async (ctx: any) => {
         },
         {
           new: true,
-        },
+        }
       );
 
       ctx.body = post;
@@ -280,7 +343,7 @@ export const update = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
+        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -295,7 +358,7 @@ export const update = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: '허용되지 않은 확장자',
+            error: "허용되지 않은 확장자",
           };
           return;
         }
@@ -306,7 +369,7 @@ export const update = async (ctx: any) => {
       await updateDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
+      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -323,7 +386,7 @@ export const update = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: '허용되지 않은 확장자',
+          error: "허용되지 않은 확장자",
         };
         return;
       }
@@ -340,11 +403,11 @@ export const update = async (ctx: any) => {
 };
 
 const mkdirFile = (path: string) => {
-  let pathList = path.split('/');
-  let fileDir = './public';
+  let pathList = path.split("/");
+  let fileDir = "./public";
   pathList.forEach((i) => {
     if (i) {
-      fileDir += '/' + i;
+      fileDir += "/" + i;
       try {
         fs.lstatSync(fileDir).isDirectory();
       } catch (e) {
@@ -359,10 +422,10 @@ const saveFile = (file: any, path: string) => {
     let render = fs.createReadStream(file.path);
     let upStream = fs.createWriteStream(`./public/${path}`);
     render.pipe(upStream);
-    upStream.on('finish', () => {
+    upStream.on("finish", () => {
       resolve(path);
     });
-    upStream.on('error', (err) => {
+    upStream.on("error", (err) => {
       reject(err);
     });
   });
@@ -374,11 +437,32 @@ const deleteFile = (path: string) => {
   });
 };
 
-export const checkId = (ctx: Context, next: () => void) => {
+export const getPostById = async (ctx: Context, next: () => void) => {
   const { id } = ctx.params;
   if (id && !(parseInt(id) >= 1)) {
     ctx.status = 400;
     return;
   }
-  return next();
+  try {
+    let post = await Post.findOne({ id, isPrivate: false }).exec();
+    const myPost = await Post.findOne({ id, 'user.email': ctx.state.user.email }).exec();
+    if (!post) post = myPost;
+    if (!post) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.state.post = post;
+    return next();
+  } catch (e) {
+    ctx.throw(500, e);
+  }
 };
+
+export const checkOwnPost = (ctx: Context, next: () => void) => {
+  const { user, post } = ctx.state;
+  if (post.user.email !== user.email) {
+    ctx.status = 403;
+    return;
+  }
+  return next();
+}
