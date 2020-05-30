@@ -16,6 +16,10 @@ const RecommentSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  user: {
+    email: String,
+    username: String,
+  },
 });
 
 const CommentSchema = new Schema({
@@ -33,6 +37,10 @@ const CommentSchema = new Schema({
     default: Date.now,
   },
   recomments: [RecommentSchema],
+  user: {
+    email: String,
+    username: String,
+  },
 });
 
 const PostSchema = new Schema({
@@ -48,7 +56,7 @@ const PostSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  likeUsers: [mongoose.Types.ObjectId],
+  likeUsers: [String],
   likes: {
     default: 0,
     type: Number,
@@ -58,8 +66,10 @@ const PostSchema = new Schema({
     default: false,
   },
   user: {
-    _id: mongoose.Types.ObjectId,
+    email: String,
     username: String,
+    loginType: String,
+    workoutDays: Number,
   },
   comments: {
     type: [CommentSchema],
