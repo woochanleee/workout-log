@@ -7,12 +7,10 @@ const jwtMiddleware = async (ctx: Context, next: () => void) => {
     if (!token) return next();
     try {
         const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
-        ctx.state.user = {
-            email: decoded.email,
-            username: decoded.username,
-            loginType: decoded.loginType,
-        };
-
+        const user = await User.findOne({ email: decoded.email }).exec();
+        if (user) {
+            ctx.state.user = user;
+        }
         const now = Math.floor(Date.now() / 1000);
         if (decoded.exp - now < 60 * 60 * 24 * 3.5) {
             const user = await User.findByEmail(decoded.email);
@@ -24,6 +22,7 @@ const jwtMiddleware = async (ctx: Context, next: () => void) => {
         }
         return next();
     } catch (e) {
+        console.log(e);
         return next();
     }
 }
