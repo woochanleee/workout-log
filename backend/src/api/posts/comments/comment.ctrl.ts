@@ -32,7 +32,7 @@ export const write = async (ctx: any) => {
       return;
     }
 
-    const commentDoc = post.comments.create({ text, id: comment_id });
+    const commentDoc = post.comments.create({ text, id: comment_id, user: ctx.state.user });
     const newComments = [...postDoc.comments].concat(commentDoc);
     await Post.findOneAndUpdate(
       { id },
@@ -176,11 +176,35 @@ export const update = async (ctx: any) => {
   }
 };
 
-export const checkId = (ctx: Context, next: () => void) => {
+export const getCommentById = async (ctx: Context, next: () => void) => {
   const { comment_id } = ctx.params;
+  const { post } = ctx.state;
   if (comment_id && !(parseInt(comment_id) >= 1)) {
     ctx.status = 400;
     return;
   }
-  return next();
+  try {
+    const comments = post.comments;
+    let comment;
+    comments.filter((c: any) => {
+      if (c.id.toString() === comment_id) comment = c;
+    })
+    if (!comment) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.state.comment = comment;
+    return next();
+  } catch (e) {
+    ctx.throw(500, e);
+  }
 };
+
+export const checkOwnComment = async (ctx: Context, next: () => void) => {
+  const { user, comment } = ctx.state;
+  if (user.email !== comment.user.email) {
+    ctx.status = 403;
+    return;
+  }
+  return next();
+}
