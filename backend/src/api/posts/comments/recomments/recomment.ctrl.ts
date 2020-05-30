@@ -43,6 +43,7 @@ export const write = async (ctx: any) => {
     const recommentDoc = post.comments[0].recomments.create({
       text,
       id: recomment_id,
+      user: ctx.state.user,
     });
     comments[comment_index].recomments.push(recommentDoc);
     await Post.findOneAndUpdate(
@@ -200,11 +201,31 @@ export const update = async (ctx: any) => {
   }
 };
 
-export const checkId = (ctx: Context, next: () => void) => {
+export const getRecommentById = (ctx: Context, next: () => void) => {
   const { recomment_id } = ctx.params;
+  const { comment } = ctx.state;
   if (recomment_id && !(parseInt(recomment_id) >= 1)) {
     ctx.status = 400;
     return;
   }
-  return next();
+  try {
+    const recomments = comment.recomments;
+    let recomment;
+    recomments.filter((r: any) => {
+      if (r.id.toString() === recomment_id) recomment = r;
+    })
+    ctx.state.recomment = recomment;
+    return next();
+  } catch (e) {
+    ctx.throw(500, e);
+  }
 };
+
+export const checkOwnRecomment = async (ctx: Context, next: () => void) => {
+  const { user, recomment } = ctx.state;
+  if (user.email !== recomment.user.email) {
+    ctx.status = 403;
+    return;
+  }
+  return next();
+}
