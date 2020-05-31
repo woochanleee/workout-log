@@ -9,9 +9,7 @@ services:
 
   workoutlog:
     container_name: workoutlog
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
+    image: woochanlee/workoutlog:0.0.6
     ports:
       - '5000:5000'
     links:

@@ -1,6 +1,6 @@
-import Post from "../../../models/post";
-import { Context } from "koa";
-import Joi from "@hapi/joi";
+import Post from '../../../models/post';
+import { Context } from 'koa';
+import Joi from '@hapi/joi';
 
 /*
   POST /api/posts/:id/comments/
@@ -23,8 +23,8 @@ export const write = async (ctx: any) => {
   if (text.length < 1 || text.length > 50) {
     ctx.status = 400;
     ctx.body = {
-      error: '댓글은 1자 이상 50자 이하입니다.'
-    }
+      error: '댓글은 1자 이상 50자 이하입니다.',
+    };
     return;
   }
   const post: any = new Post();
@@ -39,7 +39,11 @@ export const write = async (ctx: any) => {
       return;
     }
 
-    const commentDoc = post.comments.create({ text, id: comment_id, user: ctx.state.user });
+    const commentDoc = post.comments.create({
+      text,
+      id: comment_id,
+      user: ctx.state.user,
+    });
     const newComments = [...postDoc.comments].concat(commentDoc);
     await Post.findOneAndUpdate(
       { id },
@@ -48,10 +52,10 @@ export const write = async (ctx: any) => {
       },
       {
         new: true,
-      }
+      },
     );
     ctx.body = commentDoc;
-  } catch (e: any) {
+  } catch (e) {
     ctx.throw(500, e);
   }
 };
@@ -87,7 +91,7 @@ export const read = async (ctx: Context) => {
     const comments = post.comments;
     if (comments.length) {
       const comment = comments.filter(
-        (c: any) => c.id.toString() === comment_id
+        (c: any) => c.id.toString() === comment_id,
       );
       if (comment.length) ctx.body = comment;
       else ctx.status = 404;
@@ -113,7 +117,7 @@ export const remove = async (ctx: Context) => {
     const comments = post.comments;
     if (comments.length) {
       const newComments = comments.filter(
-        (c: any) => c.id.toString() !== comment_id
+        (c: any) => c.id.toString() !== comment_id,
       );
       if (newComments.join() !== comments.join()) {
         await Post.findOneAndUpdate(
@@ -125,7 +129,7 @@ export const remove = async (ctx: Context) => {
           },
           {
             new: true,
-          }
+          },
         );
         ctx.status = 204;
       } else ctx.status = 404;
@@ -175,7 +179,7 @@ export const update = async (ctx: any) => {
       },
       {
         new: true,
-      }
+      },
     );
     ctx.body = newComent;
   } catch (e) {
@@ -195,7 +199,7 @@ export const getCommentById = async (ctx: Context, next: () => void) => {
     let comment;
     comments.filter((c: any) => {
       if (c.id.toString() === comment_id) comment = c;
-    })
+    });
     if (!comment) {
       ctx.status = 404;
       return;
@@ -214,4 +218,4 @@ export const checkOwnComment = async (ctx: Context, next: () => void) => {
     return;
   }
   return next();
-}
+};
