@@ -1,12 +1,12 @@
 import { Context } from 'koa';
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 import fs from 'fs';
 import { v1 as uuidv1 } from 'uuid';
 
-import loginTypeList from '../../../../utils/loginTypeList';
+import loginTypeList from '../../../utils/loginTypeList';
 import User from '../../models/user';
 import Post from '../../models/post';
-import { extensionList } from '../../../../utils/extensionList';
+import { extensionList } from '.S./../../utils/extensionList';
 
 /*
     POST /api/auth/login
@@ -22,7 +22,7 @@ export const login = async (ctx: Context) => {
     email: Joi.string().required(),
     profileImage: Joi.string().required(),
   });
-  const result = Joi.validate(ctx.request.body, schema);
+  const result = schema.validate(ctx.request.body);
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
@@ -98,20 +98,17 @@ export const leave = async (ctx: Context) => {
   } catch (e) {
     ctx.throw(500, e);
   }
-}
+};
 
 export const update = async (ctx: any) => {
   const schema = Joi.object().keys({
     username: Joi.string().required(),
     file: Joi.any(),
   });
-  const result = Joi.validate(
-    {
-      ...ctx.request.body,
-      file: ctx.request.files.file,
-    },
-    schema
-  );
+  const result = schema.validate({
+    ...ctx.request.body,
+    file: ctx.request.files.file,
+  });
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
@@ -126,67 +123,69 @@ export const update = async (ctx: any) => {
     try {
       const user = await User.findOneAndUpdate(
         {
-          email: ctx.state.user.email
+          email: ctx.state.user.email,
         },
         {
           username,
-          profileImage: profileData
+          profileImage: profileData,
         },
         {
-          new: true
-        }
+          new: true,
+        },
       ).exec();
       console.log(user, ctx.state.emai);
       ctx.body = user;
     } catch (e) {
       ctx.throw(500, e);
     }
-  }
+  };
   const profileImage = ctx.state.user.profileImage;
-  if (profileImage.includes('upload/profileImage') && profileImage !== 'upload/profileImage/default.PNG')
+  if (
+    profileImage.includes('upload/profileImage') &&
+    profileImage !== 'upload/profileImage/default.PNG'
+  )
     await deleteFile(profileImage);
   if (file) {
     let fileName = uuidv1();
-        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
-        try {
-          while (
-            fs.lstatSync(`public/${fileDir}/${fileName}.${extension}`).isFile()
-          ) {
-            fileName = uuidv1();
-            break;
-          }
-        } catch (e) {
-          console.error(e);
-        }
-  
-        let path = `${fileDir}/${fileName}.${extension}`;
-        if (!extensionList.includes(extension)) {
-          ctx.status = 405;
-          ctx.body = {
-            error: "허용되지 않은 확장자",
-          };
-          return;
-        }
-        await saveFile(file, path)
-          .then(() => (profileData = path))
-          .catch((err) => console.log(err));
-        await updateDatabase();
+    let extension = file.name.split('.').slice(-1)[0].toUpperCase();
+    try {
+      while (
+        fs.lstatSync(`public/${fileDir}/${fileName}.${extension}`).isFile()
+      ) {
+        fileName = uuidv1();
+        break;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    let path = `${fileDir}/${fileName}.${extension}`;
+    if (!extensionList.includes(extension)) {
+      ctx.status = 405;
+      ctx.body = {
+        error: '허용되지 않은 확장자',
+      };
+      return;
+    }
+    await saveFile(file, path)
+      .then(() => (profileData = path))
+      .catch((err) => console.log(err));
+    await updateDatabase();
   } else {
     profileData = 'upload/profileImage/default.PNG';
     await updateDatabase();
   }
-
-}
+};
 
 const saveFile = (file: any, path: string) => {
   return new Promise((resolve, reject) => {
     let render = fs.createReadStream(file.path);
     let upStream = fs.createWriteStream(`./public/${path}`);
     render.pipe(upStream);
-    upStream.on("finish", () => {
+    upStream.on('finish', () => {
       resolve(path);
     });
-    upStream.on("error", (err) => {
+    upStream.on('error', (err) => {
       reject(err);
     });
   });
