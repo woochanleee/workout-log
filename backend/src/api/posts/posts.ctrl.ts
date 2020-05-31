@@ -1,10 +1,10 @@
-import Post from "../../models/post";
-import fs from "fs";
-import { v1 as uuidv1 } from "uuid";
-import { Context } from "koa";
-import { extensionList } from "../../../../utils/extensionList";
-import Joi from "joi";
-import User from "../../models/user";
+import Post from '../../models/post';
+import fs from 'fs';
+import { v1 as uuidv1 } from 'uuid';
+import { Context } from 'koa';
+import { extensionList } from '../../../utils/extensionList';
+import Joi from '@hapi/joi';
+import User from '../../models/user';
 
 /*
   POST /api/posts
@@ -24,13 +24,10 @@ export const write = async (ctx: any) => {
     tags: Joi.array().items(Joi.string()),
     isPrivate: Joi.boolean().required(),
   });
-  const result = Joi.validate(
-    {
-      ...ctx.request.body,
-      files: ctx.request.files.files,
-    },
-    schema
-  );
+  const result = schema.validate({
+    ...ctx.request.body,
+    files: ctx.request.files.files,
+  });
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
@@ -43,38 +40,52 @@ export const write = async (ctx: any) => {
   const files = ctx.request.files.files;
   const fileDir = `upload/${time.getFullYear().toString()}/${month}`;
   const filesData: Array<string> = [];
-  
+
   const saveDatabase = async () => {
     let user;
     try {
-      const lastPost: any = await Post.findOne().sort({ publishedDate: -1 }).exec();
+      const lastPost: any = await Post.findOne()
+        .sort({ publishedDate: -1 })
+        .exec();
       const userState = ctx.state.user;
       if (!lastPost) {
-         user = await User.findOneAndUpdate(
+        user = await User.findOneAndUpdate(
           { email: userState.email },
           {
-            workoutDays: 1
+            workoutDays: 1,
           },
           {
-            new: true
-          }
-         );
+            new: true,
+          },
+        );
       } else {
-        const ONE_DAYS_GAP = 86400000;  
+        const ONE_DAYS_GAP = 86400000;
         const lastPostTime = new Date(lastPost.publishedDate.toString());
 
         let year = lastPostTime.getFullYear().toString(),
-          month = lastPostTime.getMonth() + 1 < 10 ? `0${lastPostTime.getMonth() + 1}` : (lastPostTime.getMonth() + 1).toString(),
-          date = lastPostTime.getDate() + 1 < 10 ? `0${lastPostTime.getDate()}` : lastPostTime.getDate().toString();
-        
+          month =
+            lastPostTime.getMonth() + 1 < 10
+              ? `0${lastPostTime.getMonth() + 1}`
+              : (lastPostTime.getMonth() + 1).toString(),
+          date =
+            lastPostTime.getDate() + 1 < 10
+              ? `0${lastPostTime.getDate()}`
+              : lastPostTime.getDate().toString();
+
         const formatedLastTime = [year, month, date].join('-');
         const publishedDate = new Date(formatedLastTime).getTime().toString();
 
         const nowTime = new Date();
 
-        year = nowTime.getFullYear().toString(),
-        month = nowTime.getMonth() + 1 < 10 ? `0${nowTime.getMonth() + 1}` : (nowTime.getMonth() + 1).toString(),
-        date = nowTime.getDate() + 1 < 10 ? `0${nowTime.getDate()}` : nowTime.getDate().toString();
+        (year = nowTime.getFullYear().toString()),
+          (month =
+            nowTime.getMonth() + 1 < 10
+              ? `0${nowTime.getMonth() + 1}`
+              : (nowTime.getMonth() + 1).toString()),
+          (date =
+            nowTime.getDate() + 1 < 10
+              ? `0${nowTime.getDate()}`
+              : nowTime.getDate().toString());
 
         const formatedNowTime = [year, month, date].join('-');
         const nowDate = new Date(formatedNowTime).getTime().toString();
@@ -82,24 +93,24 @@ export const write = async (ctx: any) => {
           user = await User.findOneAndUpdate(
             { email: userState.email },
             {
-              workoutDays: userState.workoutDays + 1
+              workoutDays: userState.workoutDays + 1,
             },
             {
-              new: true
-            }
+              new: true,
+            },
           );
         } else if (parseInt(nowDate) - parseInt(publishedDate) > ONE_DAYS_GAP) {
           user = await User.findOneAndUpdate(
             { email: userState.email },
             {
-              workoutDays: 0
+              workoutDays: 0,
             },
             {
-              new: true
-            }
+              new: true,
+            },
           );
         } else {
-          user = userState
+          user = userState;
         }
       }
       const post = new Post({
@@ -110,7 +121,7 @@ export const write = async (ctx: any) => {
         files: filesData,
         isPrivate,
         user,
-        comments: []
+        comments: [],
       });
       await post.save();
       ctx.body = post;
@@ -125,7 +136,7 @@ export const write = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
+        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -140,7 +151,7 @@ export const write = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: "허용되지 않은 확장자",
+            error: '허용되지 않은 확장자',
           };
           return;
         }
@@ -151,7 +162,7 @@ export const write = async (ctx: any) => {
       await saveDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
+      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -168,7 +179,7 @@ export const write = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: "허용되지 않은 확장자",
+          error: '허용되지 않은 확장자',
         };
         return;
       }
@@ -188,19 +199,18 @@ export const write = async (ctx: any) => {
   GET /api/posts?username=&tag=&page=
 */
 export const list = async (ctx: Context) => {
-  const page = parseInt(ctx.query.page || "1", 10);
+  const page = parseInt(ctx.query.page || '1', 10);
 
   if (page < 1) {
     ctx.status = 400;
     return;
   }
- 
+
   const { username, tag, email } = ctx.query;
   const query = {
     ...(username ? { 'user.username': username } : {}),
     ...(tag ? { tags: tag } : {}),
     ...(email ? { 'user.email': email } : {}),
-    
   };
 
   try {
@@ -210,18 +220,21 @@ export const list = async (ctx: Context) => {
       })
       .exec();
     if (ctx.state.user) {
-      let myPosts = await Post.find({ ...query, 'user.email': ctx.state.user && ctx.state.user.email })
-      .sort({
-        id: -1.
+      let myPosts = await Post.find({
+        ...query,
+        'user.email': ctx.state.user && ctx.state.user.email,
       })
-      .exec();
-      posts = posts.concat(myPosts).filter((p1, i, arr) =>
-        arr.findIndex((p2) => p1.id === p2.id) === i
-      );
+        .sort({
+          id: -1,
+        })
+        .exec();
+      posts = posts
+        .concat(myPosts)
+        .filter((p1, i, arr) => arr.findIndex((p2) => p1.id === p2.id) === i);
     }
     const postCount: number = posts.length;
-    posts = posts.slice((page - 1) * 10, page * 10).sort((a, b) => (b.id - a.id));
-    ctx.set("Last-Page", Math.ceil(postCount / 10).toString());
+    posts = posts.slice((page - 1) * 10, page * 10).sort((a, b) => b.id - a.id);
+    ctx.set('Last-Page', Math.ceil(postCount / 10).toString());
     ctx.body = posts
       .map((post) => post.toJSON())
       .map((post) => ({
@@ -285,12 +298,11 @@ export const update = async (ctx: any) => {
     tags: Joi.array().items(Joi.string()),
     isPrivate: Joi.boolean().required(),
   });
-  const result = Joi.validate(
+  const result = schema.validate(
     {
       ...ctx.request.body,
       files: ctx.request.files.files,
     },
-    schema
   );
   if (result.error) {
     ctx.status = 400;
@@ -323,7 +335,7 @@ export const update = async (ctx: any) => {
         },
         {
           new: true,
-        }
+        },
       );
 
       ctx.body = post;
@@ -343,7 +355,7 @@ export const update = async (ctx: any) => {
     if (files.length) {
       for (const file of files) {
         let fileName = uuidv1();
-        let extension = file.name.split(".").slice(-1)[0].toUpperCase();
+        let extension = file.name.split('.').slice(-1)[0].toUpperCase();
 
         try {
           while (fs.lstatSync(`${fileDir}/${fileName}.${extension}`).isFile()) {
@@ -358,7 +370,7 @@ export const update = async (ctx: any) => {
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
-            error: "허용되지 않은 확장자",
+            error: '허용되지 않은 확장자',
           };
           return;
         }
@@ -369,7 +381,7 @@ export const update = async (ctx: any) => {
       await updateDatabase();
     } else if (files.name) {
       let fileName = uuidv1();
-      let extension = files.name.split(".").slice(-1)[0].toUpperCase();
+      let extension = files.name.split('.').slice(-1)[0].toUpperCase();
 
       try {
         while (
@@ -386,7 +398,7 @@ export const update = async (ctx: any) => {
       if (!extensionList.includes(extension)) {
         ctx.status = 405;
         ctx.body = {
-          error: "허용되지 않은 확장자",
+          error: '허용되지 않은 확장자',
         };
         return;
       }
@@ -403,11 +415,11 @@ export const update = async (ctx: any) => {
 };
 
 const mkdirFile = (path: string) => {
-  let pathList = path.split("/");
-  let fileDir = "./public";
+  let pathList = path.split('/');
+  let fileDir = './public';
   pathList.forEach((i) => {
     if (i) {
-      fileDir += "/" + i;
+      fileDir += '/' + i;
       try {
         fs.lstatSync(fileDir).isDirectory();
       } catch (e) {
@@ -422,10 +434,10 @@ const saveFile = (file: any, path: string) => {
     let render = fs.createReadStream(file.path);
     let upStream = fs.createWriteStream(`./public/${path}`);
     render.pipe(upStream);
-    upStream.on("finish", () => {
+    upStream.on('finish', () => {
       resolve(path);
     });
-    upStream.on("error", (err) => {
+    upStream.on('error', (err) => {
       reject(err);
     });
   });
@@ -445,7 +457,10 @@ export const getPostById = async (ctx: Context, next: () => void) => {
   }
   try {
     let post = await Post.findOne({ id, isPrivate: false }).exec();
-    const myPost = await Post.findOne({ id, 'user.email': ctx.state.user.email }).exec();
+    const myPost = await Post.findOne({
+      id,
+      'user.email': ctx.state.user.email,
+    }).exec();
     if (!post) post = myPost;
     if (!post) {
       ctx.status = 404;
@@ -465,4 +480,4 @@ export const checkOwnPost = (ctx: Context, next: () => void) => {
     return;
   }
   return next();
-}
+};

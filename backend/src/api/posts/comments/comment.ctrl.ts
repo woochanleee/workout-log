@@ -1,6 +1,6 @@
 import Post from "../../../models/post";
 import { Context } from "koa";
-import Joi from "joi";
+import Joi from "@hapi/joi";
 
 /*
   POST /api/posts/:id/comments/
@@ -12,7 +12,7 @@ export const write = async (ctx: any) => {
   const schema = Joi.object().keys({
     text: Joi.string().required(),
   });
-  const result = Joi.validate(ctx.request.body, schema);
+  const result = schema.validate(ctx.request.body);
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
@@ -144,7 +144,7 @@ export const update = async (ctx: any) => {
   const schema = Joi.object().keys({
     text: Joi.string().required(),
   });
-  const result = Joi.validate(ctx.request.body, schema);
+  const result = schema.validate(ctx.request.body);
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
