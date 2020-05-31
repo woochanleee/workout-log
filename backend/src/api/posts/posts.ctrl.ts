@@ -157,7 +157,7 @@ export const write = async (ctx: any) => {
         }
         await saveFile(file, path)
           .then(() => filesData.push(path))
-          .catch((err) => console.log(err));
+          .catch((err: any) => console.log(err));
       }
       await saveDatabase();
     } else if (files.name) {
@@ -185,7 +185,7 @@ export const write = async (ctx: any) => {
       }
       await saveFile(files, path)
         .then(() => filesData.push(path))
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
       await saveDatabase();
     } else {
       await saveDatabase();
@@ -298,12 +298,10 @@ export const update = async (ctx: any) => {
     tags: Joi.array().items(Joi.string()),
     isPrivate: Joi.boolean().required(),
   });
-  const result = schema.validate(
-    {
-      ...ctx.request.body,
-      files: ctx.request.files.files,
-    },
-  );
+  const result = schema.validate({
+    ...ctx.request.body,
+    files: ctx.request.files.files,
+  });
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
@@ -376,7 +374,7 @@ export const update = async (ctx: any) => {
         }
         await saveFile(file, path)
           .then(() => filesData.push(path))
-          .catch((err) => console.log(err));
+          .catch((err: any) => console.log(err));
       }
       await updateDatabase();
     } else if (files.name) {
@@ -404,7 +402,7 @@ export const update = async (ctx: any) => {
       }
       await saveFile(files, path)
         .then(() => filesData.push(path))
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
       await updateDatabase();
     } else {
       await updateDatabase();
