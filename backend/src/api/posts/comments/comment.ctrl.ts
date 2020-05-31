@@ -94,7 +94,7 @@ export const read = async (ctx: Context) => {
     } else {
       ctx.status = 404;
     }
-  } catch (e: any) {
+  } catch (e) {
     ctx.throw(500, e);
   }
 };
