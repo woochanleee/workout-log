@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import Koa from "koa";
+import Koa, { Context } from "koa";
 import Router from "koa-router";
 import bodyparser from "koa-bodyparser";
 import mongoose from "mongoose";
@@ -12,6 +12,7 @@ import jwtMiddleware from './lib/jwtMiddleware';
 dotenv.config();
 
 const { PORT, MONGO_URI } = process.env;
+console.log(MONGO_URI);
 
 mongoose
   .connect(MONGO_URI, {
@@ -29,7 +30,7 @@ mongoose
 const app = new Koa();
 const router = new Router();
 
-router.get("/", (ctx) => {
+router.get("/", (ctx: Context) => {
   ctx.body = "홈";
 });
 
