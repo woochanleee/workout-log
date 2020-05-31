@@ -169,7 +169,7 @@ export const update = async (ctx: any) => {
     }
     await saveFile(file, path)
       .then(() => (profileData = path))
-      .catch((err) => console.log(err));
+      .catch((err: any) => console.log(err));
     await updateDatabase();
   } else {
     profileData = 'upload/profileImage/default.PNG';

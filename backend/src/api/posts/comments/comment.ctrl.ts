@@ -51,7 +51,7 @@ export const write = async (ctx: any) => {
       }
     );
     ctx.body = commentDoc;
-  } catch (e) {
+  } catch (e: any) {
     ctx.throw(500, e);
   }
 };
@@ -94,7 +94,7 @@ export const read = async (ctx: Context) => {
     } else {
       ctx.status = 404;
     }
-  } catch (e) {
+  } catch (e: any) {
     ctx.throw(500, e);
   }
 };
