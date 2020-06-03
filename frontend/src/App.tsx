@@ -1,13 +1,16 @@
 import React, { FC } from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Route, Switch } from 'react-router-dom';
+import { LoginPage, PostListPage, PostPage, WritePage, NoMatch } from './pages';
+import './style.css';
 
 const App: FC<{}> = () => (
-  <Container>
-    <Row>
-      <Col>1 of 1</Col>
-      <Button>sdf</Button>
-    </Row>
-  </Container>
+  <Switch>
+    <Route component={PostListPage} path={['/@:username', '/']} exact />
+    <Route component={LoginPage} path="/login" />
+    <Route component={WritePage} path="/write" />
+    <Route component={PostPage} path="/@:username/:postId" />
+    <Route component={NoMatch} />
+  </Switch>
 );
 
 export default App;
