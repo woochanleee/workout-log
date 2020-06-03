@@ -4,8 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --hot",
-    "build": "webpack"
+    "start": "webpack-dev-server --hot --inline",
+    "build": "webpack",
+    "dev": "webpack --watch"
   },
   "dependencies": {
     "@babel/core": "^7.10.2",
@@ -21,6 +22,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
     "style-loader": "^1.2.1",
     "styled-components": "^5.1.1",
     "ts-loader": "^7.0.5",

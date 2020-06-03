@@ -1,20 +1,13 @@
 import React, { FC } from 'react';
-import styled from 'styled-components';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
-const AppWrapper = styled.div`
-  background: #000000;
-  > h1 {
-    font-size: 40px;
-    color: #ffffff;
-  }
-`;
-
-const App: React.FC<{}> = () => {
-  return (
-    <AppWrapper>
-      <h1>Hello, world!</h1>
-    </AppWrapper>
-  );
-};
+const App: FC<{}> = () => (
+  <Container>
+    <Row>
+      <Col>1 of 1</Col>
+      <Button>sdf</Button>
+    </Row>
+  </Container>
+);
 
 export default App;
