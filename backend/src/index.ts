@@ -37,7 +37,9 @@ router.get("/", (ctx: Context) => {
 router.use("/api", api.routes());
 
 app.use(bodyparser());
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 app.use(koaStatic("public"));
 app.use(jwtMiddleware);
 
