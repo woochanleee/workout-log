@@ -29,7 +29,7 @@ const HeaaderWrapper = styled.header`
 `;
 
 const Header: FC<{}> = () => {
-  const [authInfo, setAuthInfo] = useRecoilState(authState);
+  const [auth, setAuth] = useRecoilState(authState);
   const loginHandler = useCallback((data) => {
     const { Ut } = data;
     authApi
@@ -39,7 +39,7 @@ const Header: FC<{}> = () => {
         profileImage: Ut.iL,
       })
       .then((res) =>
-        setAuthInfo({
+        setAuth({
           profileImage: res.data.profileImage,
           workoutDays: res.data.workoutDays,
           username: res.data.username,
@@ -99,87 +99,49 @@ const Header: FC<{}> = () => {
           </Button>
           <div className="navbar-collapse collapse" id="navbarCollapse">
             <ul className="navbar-nav mr-auto">
-              <li className="nav-item">
-                <div className="dropdown pull-left">
-                  <button
-                    className="btn btn-default dropdown-toggle nav-link"
-                    type="button"
-                    data-toggle="dropdown"
-                    data-hover="dropdown"
-                    aria-expanded="false"
+              {Object.keys(auth).length ? (
+                <li className="nav-item">
+                  <NavLink
+                    activeStyle={activeStyle}
+                    className="nav-link"
+                    to="/mypage"
                   >
-                    LOGIN
-                  </button>
-                  <ul
-                    className="dropdown-menu dropdownhover-bottom d-print-inline-block"
-                    role="menu"
-                    aria-labelledby="dropdownMenu1"
-                  >
-                    <li>
-                      <GoogleAPI
-                        clientId={process.env.GOOGLE_CLIENT_ID}
-                        onUpdateSigninStatus={(res) => console.log(res)}
-                        onInitFailure={(err: any) => console.log(err)}
-                      >
-                        <GoogleLogin
-                          onLoginSuccess={loginHandler}
-                          onLoginFailure={(err) => console.log(err)}
-                        />
-                      </GoogleAPI>
-                    </li>
-
-                    {/* <li>
-                      <GoogleAPI
-                        clientId={process.env.GOOGLE_CLIENT_ID}
-                        onUpdateSigninStatus={(res: any) => console.log(res)}
-                        onInitFailure={(err: any) => console.log(err)}
-                      >
-                        <GoogleLogin
-                          onLoginSuccess={(res) => console.log(res)}
-                          onLoginFailure={(err) => console.log(err)}
-                        />
-                      </GoogleAPI>
-                    </li> */}
-                  </ul>
-                </div>
-                {/* <NavLink
-                  activeStyle={activeStyle}
-                  className="dropdown pull-left nav-link dropdown-toggle"
-                  data-toggle="dropdown"
-                  data-hover="dropdown"
-                  aria-expanded="false"
-                  to="/login"
-                >
-                  LOGIN
-                  <ul
-                    className="dropdown-menu dropdownhover-bottom"
-                    role="menu"
-                    aria-labelledby="dropdownMenu1"
-                  >
-                    <li>
-                      <GoogleAPI
-                        clientId={process.env.GOOGLE_CLIENT_ID}
-                        onUpdateSigninStatus={(res: any) => console.log(res)}
-                        onInitFailure={(err: any) => console.log(err)}
-                      >
-                        <GoogleLogin
-                          onLoginSuccess={(res) => console.log(res)}
-                          onLoginFailure={(err) => console.log(err)}
-                        />
-                      </GoogleAPI>
-                    </li>
-                  </ul>
-                </NavLink> */}
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  activeStyle={activeStyle}
-                  className="nav-link"
-                  to="/mypage"
-                >
-                  <span className="mb-0">MYPAGE</span>
-                </NavLink>
-              </li>
+                    <span className="mb-0">MYPAGE</span>
+                  </NavLink>
+                </li>
+              ) : (
+                <li className="nav-item">
+                  <div className="dropdown pull-left">
+                    <button
+                      className="btn btn-default dropdown-toggle nav-link"
+                      type="button"
+                      data-toggle="dropdown"
+                      data-hover="dropdown"
+                      aria-expanded="false"
+                    >
+                      LOGIN
+                    </button>
+                    <ul
+                      className="dropdown-menu dropdownhover-bottom d-print-inline-block"
+                      role="menu"
+                      aria-labelledby="dropdownMenu1"
+                    >
+                      <li>
+                        <GoogleAPI
+                          clientId={process.env.GOOGLE_CLIENT_ID}
+                          onUpdateSigninStatus={(res) => console.log(res)}
+                          onInitFailure={(err: any) => console.log(err)}
+                        >
+                          <GoogleLogin
+                            onLoginSuccess={loginHandler}
+                            onLoginFailure={(err) => console.log(err)}
+                          />
+                        </GoogleAPI>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+              )}
             </ul>
             <form className="form-inline mt-2 mt-md-0">
               <input
@@ -199,7 +161,7 @@ const Header: FC<{}> = () => {
         </Nav>
       </HeaaderWrapper>
       <Spacer />
-      {console.log(authInfo)}
+      {console.log(auth)}
     </>
   );
 };
