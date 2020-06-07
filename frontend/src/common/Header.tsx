@@ -4,12 +4,15 @@ import { Nav, Button } from 'reactstrap';
 import styled from 'styled-components';
 import { GoogleAPI, GoogleLogin } from 'react-google-oauth';
 import { useRecoilState } from 'recoil';
-import { authState } from '../modules/auth';
+import { userState } from '../modules/auth';
 import * as authApi from '../lib/api/auth';
-import Axios from 'axios';
 
 const Spacer = styled.div`
   height: 56px;
+`;
+
+const LogoutBlock = styled.div`
+  cursor: pointer;
 `;
 
 const HeaaderWrapper = styled.header`
@@ -29,7 +32,7 @@ const HeaaderWrapper = styled.header`
 `;
 
 const Header: FC<{}> = () => {
-  const [auth, setAuth] = useRecoilState(authState);
+  const [user, setUser] = useRecoilState(userState);
   const loginHandler = useCallback((data) => {
     const { Ut } = data;
     authApi
@@ -38,17 +41,34 @@ const Header: FC<{}> = () => {
         email: Ut.Eu,
         profileImage: Ut.iL,
       })
-      .then((res) =>
-        setAuth({
+      .then((res) => {
+        setUser({
           profileImage: res.data.profileImage,
           workoutDays: res.data.workoutDays,
           username: res.data.username,
           email: res.data.email,
           loginType: res.data.loginType,
-        }),
-      )
+        });
+      })
+      .catch((err) => console.log(err));
+    authApi
+      .check()
+      .then((res) => console.log(res))
       .catch((err) => console.log(err));
   }, []);
+  const logoutHandler = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.preventDefault();
+      authApi
+        .logout()
+        .then((res) => {
+          localStorage.removeItem('user');
+          setUser({});
+        })
+        .catch((err) => console.log(err));
+    },
+    [],
+  );
   const activeStyle = {
     color: '#fff',
   };
@@ -71,14 +91,17 @@ const Header: FC<{}> = () => {
         $('.dropdown-toggle').attr('aria-expanded', 'false');
       },
     );
-  }, []);
+  }, [user]);
+  useEffect(() => {
+    if (Object.keys(user).length) {
+      try {
+        localStorage.setItem('user', JSON.stringify(user));
+      } catch (e) {
+        console.log('localStorage is not working');
+      }
+    }
+  }, [user]);
   return (
-    // <header>
-    //   <Nav className="navbar-expand-md navbar-dark fixed-top bg-dark">
-    //     <Link to="/">workoutLog</Link>
-    //     <a>로그인</a>
-    //   </Nav>
-    // </header>
     <>
       <HeaaderWrapper>
         <Nav className="navbar navbar-expand-md navbar-dark fixed-top bg-success">
@@ -99,16 +122,26 @@ const Header: FC<{}> = () => {
           </Button>
           <div className="navbar-collapse collapse" id="navbarCollapse">
             <ul className="navbar-nav mr-auto">
-              {Object.keys(auth).length ? (
-                <li className="nav-item">
-                  <NavLink
-                    activeStyle={activeStyle}
-                    className="nav-link"
-                    to="/mypage"
-                  >
-                    <span className="mb-0">MYPAGE</span>
-                  </NavLink>
-                </li>
+              {Object.keys(user).length ? (
+                <>
+                  <li className="nav-item">
+                    <NavLink
+                      activeStyle={activeStyle}
+                      className="nav-link"
+                      to="/mypage"
+                    >
+                      <span className="mb-0">MYPAGE</span>
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <LogoutBlock
+                      className="nav-link"
+                      onClickCapture={logoutHandler}
+                    >
+                      <span className="mb-0">LOGOUT</span>
+                    </LogoutBlock>
+                  </li>
+                </>
               ) : (
                 <li className="nav-item">
                   <div className="dropdown pull-left">
@@ -161,67 +194,11 @@ const Header: FC<{}> = () => {
         </Nav>
       </HeaaderWrapper>
       <Spacer />
-      {console.log(auth)}
+      {Object.entries(user).map((data: any) => (
+        <div key={data.email}>{data}</div>
+      ))}
     </>
   );
 };
 
 export default Header;
-
-{
-  /* <header>
-<Nav className="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-  <NavLink className="navbar-brand" to="/">
-    workoutLog
-  </NavLink>
-  <Button
-    className="navbar-toggler collapsed"
-    type="button"
-    data-toggle="collapse"
-    data-target="#navbarCollapse"
-    aria-controls="navbarCollapse"
-    aria-expanded={true}
-    aria-label="Toggle navigation"
-    onClickCapture={dropdownHandler}
-  >
-    <span className="navbar-toggler-icon"></span>
-  </Button>
-  <div className="navbar-collapse collapse" id="navbarCollapse">
-    <ul className="navbar-nav mr-auto">
-      <li className="nav-item">
-        <NavLink
-          activeStyle={activeStyle}
-          className="nav-link"
-          to="/login"
-        >
-          LOGIN
-        </NavLink>
-      </li>
-      <li className="nav-item">
-        <NavLink
-          activeStyle={activeStyle}
-          className="nav-link"
-          to="/mypage"
-        >
-          MYPAGE
-        </NavLink>
-      </li>
-    </ul>
-    <form className="form-inline mt-2 mt-md-0">
-      <input
-        className="form-control mr-sm-2"
-        type="text"
-        placeholder="Search"
-        aria-label="Search"
-      />
-      <button
-        className="btn btn-outline-success my-2 my-sm-0"
-        type="submit"
-      >
-        Search
-      </button>
-    </form>
-  </div>
-</Nav>
-</header> */
-}

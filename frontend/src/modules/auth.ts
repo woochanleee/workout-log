@@ -1,7 +1,7 @@
 import { atom, selector } from 'recoil';
 
-export const authState = atom({
-  key: 'auth/sampleState',
+export const userState = atom({
+  key: 'auth/userState',
   default: {},
 });
 
