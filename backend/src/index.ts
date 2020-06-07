@@ -12,7 +12,6 @@ import jwtMiddleware from './lib/jwtMiddleware';
 dotenv.config();
 
 const { PORT, MONGO_URI } = process.env;
-console.log(MONGO_URI);
 
 mongoose
   .connect(MONGO_URI, {
@@ -38,7 +37,8 @@ router.use("/api", api.routes());
 
 app.use(bodyparser());
 app.use(cors({
-  origin: '*'
+  origin: 'http://localhost:3000',
+  credentials: true
 }));
 app.use(koaStatic("public"));
 app.use(jwtMiddleware);
