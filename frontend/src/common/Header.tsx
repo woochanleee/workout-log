@@ -8,7 +8,7 @@ import { userState } from '../modules/auth';
 import * as authApi from '../lib/api/auth';
 
 const Spacer = styled.div`
-  height: 56px;
+  height: 61px;
 `;
 
 const LogoutBlock = styled.div`
@@ -28,6 +28,9 @@ const HeaaderWrapper = styled.header`
   }
   .dropdown-menu > li + li {
     margin-top: 0.25rem;
+  }
+ .dropdown.pull-left {
+    display: inline-block;
   }
 `;
 
