@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
+import PostList from '../components/posts/PostList';
 
-const PostListPage: FC<{}> = () => <div>포스트 리스트</div>;
+const PostListPage: FC<{}> = () => <PostList />;
 
 export default PostListPage;
