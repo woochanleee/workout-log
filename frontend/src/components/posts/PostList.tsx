@@ -71,16 +71,18 @@ const PostList: FC<
   }
 > = ({ location }) => {
   const [posts, setPosts] = useRecoilState(postsState);
-  let { tag, username, page = 1, useremail } = qs.parse(
-    location.search.slice(1),
-  );
+  let {
+    tag,
+    username = location.pathname.split('/@')[1],
+    page = 1,
+    useremail,
+  } = qs.parse(location.search.slice(1));
   tag = tag as string;
   username = username as string;
   page = page as string;
   useEffect(() => {
     listPosts({ tag, username, page, useremail })
       .then((res) => {
-        console.log(res.data);
         setPosts({
           posts: [...res.data],
           lastPage: parseInt(res.headers['last-page'], 10),

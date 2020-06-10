@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { FC, useEffect, useCallback, useState } from 'react';
+import { NavLink, useHistory } from 'react-router-dom';
 import { Nav, Button } from 'reactstrap';
 import styled from 'styled-components';
 import { GoogleAPI, GoogleLogin } from 'react-google-oauth';
@@ -100,6 +100,27 @@ const Header: FC<{}> = () => {
     },
     [],
   );
+  const history = useHistory();
+  const onSearch = useCallback((e) => {
+    e.preventDefault();
+    const query = e.target.childNodes[0].value.split('=');
+    const queryWord = query[1];
+
+    switch (query[0].toString()) {
+      case '닉네임':
+        history.push(`/@${queryWord}`);
+        break;
+      case '태그':
+        history.push(`/?tag=${queryWord}`);
+        break;
+      case '이메일':
+        history.push(`/?email=${queryWord}`);
+        break;
+      default:
+        console.log(1);
+        break;
+    }
+  }, []);
   const activeStyle = {
     color: '#fff',
   };
@@ -182,9 +203,10 @@ const Header: FC<{}> = () => {
                     </LogoutBlock>
                   </li>
                   <li className="nav-item greet">
-                    <Marquee>
+                    <Marquee direction="left">
                       {user.username}님 안녕하세요. {user.workoutDays}일째
-                      운동중입니다!💪
+                      운동중입니다!💪 검색 형식은 닉네임=이우찬 형태로 태그,
+                      이메일 검색 가능합니다!
                     </Marquee>
                   </li>
                 </>
@@ -222,11 +244,11 @@ const Header: FC<{}> = () => {
                 </li>
               )}
             </ul>
-            <form className="form-inline mt-2 mt-md-0">
+            <form className="form-inline mt-2 mt-md-0" onSubmit={onSearch}>
               <input
                 className="form-control mr-sm-2"
                 type="text"
-                placeholder="ex) 닉네임, 태그"
+                placeholder="ex) 닉네임=이우찬"
                 aria-label="Search"
               />
               <button
