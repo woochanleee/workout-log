@@ -5,6 +5,7 @@ import bodyparser from "koa-bodyparser";
 import mongoose from "mongoose";
 import cors from "@koa/cors";
 import koaStatic from "koa-static";
+import send from 'koa-send';
 
 import api from "./api";
 import jwtMiddleware from './lib/jwtMiddleware';
@@ -29,18 +30,20 @@ mongoose
 const app = new Koa();
 const router = new Router();
 
-router.get("/", (ctx: Context) => {
-  ctx.body = "홈";
-});
-
 router.use("/api", api.routes());
 
 app.use(bodyparser());
 app.use(cors({
   origin: 'http://localhost:3000',
-  credentials: true
+  credentials: true,
+  exposeHeaders: 'Last-Page'
 }));
 app.use(koaStatic("public"));
+app.use(async ctx => {
+  if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {
+    await send(ctx, 'index.html', { root: `${__dirname}/public`})
+  }
+})
 app.use(jwtMiddleware);
 
 app.use(router.routes()).use(router.allowedMethods());
