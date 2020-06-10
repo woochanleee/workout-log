@@ -12,6 +12,7 @@ import { check } from './lib/api/auth';
 
 function LoadUser({ children }) {
   const [user, setUser] = useRecoilState(userState);
+
   useEffect(() => {
     try {
       const userValue = localStorage.getItem('user');
@@ -30,7 +31,13 @@ function LoadUser({ children }) {
         .catch((err) => {
           try {
             localStorage.removeItem('user');
-            setUser({});
+            setUser({
+              username: '',
+              workoutDays: 0,
+              profileImage: '',
+              email: '',
+              loginType: '',
+            });
           } catch (e) {
             console.log('localStorage is not working');
           }
