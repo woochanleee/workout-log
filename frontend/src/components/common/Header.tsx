@@ -4,8 +4,9 @@ import { Nav, Button } from 'reactstrap';
 import styled from 'styled-components';
 import { GoogleAPI, GoogleLogin } from 'react-google-oauth';
 import { useRecoilState } from 'recoil';
-import { userState } from '../modules/auth';
-import * as authApi from '../lib/api/auth';
+import Marquee from 'react-double-marquee';
+import { userState } from '../../modules/auth';
+import * as authApi from '../../lib/api/auth';
 
 const Spacer = styled.div`
   height: 61px;
@@ -21,6 +22,7 @@ const HeaaderWrapper = styled.header`
   }
   .dropdown-menu {
     margin-top: 0;
+    margin-bottom: 1rem;
     padding: 0;
     &.show {
       display: inline-block;
@@ -29,8 +31,28 @@ const HeaaderWrapper = styled.header`
   .dropdown-menu > li + li {
     margin-top: 0.25rem;
   }
- .dropdown.pull-left {
+
+  .dropdown.pull-left {
     display: inline-block;
+  }
+  .form-inline {
+    display: flex;
+    background-color: #28a745 !important;
+    z-index: 1000;
+  }
+  .nav-item.greet {
+    width: 4rem !important;
+  }
+  .greet {
+    white-space: nowrap;
+    padding: 0.5rem 0;
+    > div {
+      width: 20rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      color: white;
+    }
   }
 `;
 
@@ -66,7 +88,13 @@ const Header: FC<{}> = () => {
         .logout()
         .then((res) => {
           localStorage.removeItem('user');
-          setUser({});
+          setUser({
+            username: '',
+            workoutDays: 0,
+            profileImage: '',
+            email: '',
+            loginType: '',
+          });
         })
         .catch((err) => console.log(err));
     },
@@ -96,7 +124,7 @@ const Header: FC<{}> = () => {
     );
   }, [user]);
   useEffect(() => {
-    if (Object.keys(user).length) {
+    if (user.username.length) {
       try {
         localStorage.setItem('user', JSON.stringify(user));
       } catch (e) {
@@ -125,8 +153,17 @@ const Header: FC<{}> = () => {
           </Button>
           <div className="navbar-collapse collapse" id="navbarCollapse">
             <ul className="navbar-nav mr-auto">
-              {Object.keys(user).length ? (
+              {user.username.length ? (
                 <>
+                  <li className="nav-item">
+                    <NavLink
+                      activeStyle={activeStyle}
+                      className="nav-link"
+                      to="/write"
+                    >
+                      <span className="mb-0">WRITE</span>
+                    </NavLink>
+                  </li>
                   <li className="nav-item">
                     <NavLink
                       activeStyle={activeStyle}
@@ -143,6 +180,12 @@ const Header: FC<{}> = () => {
                     >
                       <span className="mb-0">LOGOUT</span>
                     </LogoutBlock>
+                  </li>
+                  <li className="nav-item greet">
+                    <Marquee>
+                      {user.username}님 안녕하세요. {user.workoutDays}일째
+                      운동중입니다!💪
+                    </Marquee>
                   </li>
                 </>
               ) : (
@@ -197,9 +240,6 @@ const Header: FC<{}> = () => {
         </Nav>
       </HeaaderWrapper>
       <Spacer />
-      {Object.entries(user).map((data: any) => (
-        <div key={data.email}>{data}</div>
-      ))}
     </>
   );
 };
