@@ -65,7 +65,7 @@ const TagBox: FC<{}> = () => {
       setLocalTags(nextTags);
       setPost({ ...post, tags: nextTags });
     },
-    [localTags, setPost],
+    [localTags, post],
   );
 
   const onRemove = useCallback(
