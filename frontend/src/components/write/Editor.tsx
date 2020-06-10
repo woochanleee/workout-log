@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useCallback, useMemo, useState } from 'react';
+import React, { FC, useEffect, useCallback, useRef, useState } from 'react';
 import ReactQuill from 'react-quill'; //
 import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
@@ -6,6 +6,7 @@ import { useRecoilState } from 'recoil';
 import TagBox from './TagBox';
 import WriteActionButtons from './WriteActionButtons';
 import { writeState } from '../../modules/write';
+import client from '../../lib/api/client';
 
 const EditorWrapper = styled.article`
   padding: 1rem 0;
@@ -53,11 +54,10 @@ const EditorWrapper = styled.article`
   }
   #image {
     width: 100%;
-    max-height: 30rem;
+    max-height: 31rem;
     display: block;
     overflow-x: scroll;
     margin-bottom: 1rem;
-    width: 100%;
     white-space: nowrap;
     > img {
       object-fit: cover;
@@ -73,9 +73,9 @@ const EditorWrapper = styled.article`
   }
 `;
 
-const Editor: React.FC<{}> = () => {
+const Editor: FC<{}> = () => {
   const [post, setPost] = useRecoilState(writeState);
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(post.isPrivate);
   const [files, setFiles] = useState(new FormData());
   const onChangeField = useCallback(
     ({ key, value }) => {
@@ -88,6 +88,7 @@ const Editor: React.FC<{}> = () => {
         tags: string[];
         files: FormData;
         isPrivate: boolean;
+        isEditMode: boolean;
       };
       setPost(newPost);
     },
@@ -155,10 +156,62 @@ const Editor: React.FC<{}> = () => {
     console.log(post);
   }, [files]);
 
+  const mounted = useRef(false);
+  useEffect(() => {
+    const dataURLtoFile = (dataurl, fileName) => {
+      var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      return new File([u8arr], fileName, { type: mime });
+    };
+
+    const quillInstance = document.querySelector('.ql-editor');
+    if (mounted.current) return;
+    mounted.current = true;
+    quillInstance.innerHTML = post.body;
+    if (post.filesUrl && post.filesUrl.length) {
+      for (let i = 0; i < post.filesUrl.length; i++) {
+        console.log(post.filesUrl);
+        client
+          .get(`/${post.filesUrl[i]}`, { responseType: 'blob' })
+          .then(function (response) {
+            var reader = new window.FileReader();
+            reader.readAsDataURL(response.data);
+            reader.onload = function () {
+              const imgEl = document.createElement('img');
+              var imageDataUrl = reader.result;
+              imgEl.src = imageDataUrl as string;
+              document.querySelector('#image').appendChild(imgEl);
+              files.append(
+                'files',
+                dataURLtoFile(imageDataUrl, post.filesUrl[i]),
+              );
+            };
+          })
+          .catch((err) => console.log(err));
+      }
+    }
+
+    if (isPrivate) {
+      $('.toggle.btn').removeClass('btn-light off');
+      $('.toggle.btn').addClass('btn-success');
+    } else {
+      $('.toggle.btn').removeClass('btn-success');
+      $('.toggle.btn').addClass('btn-light off');
+    }
+  }, [post.body]);
+
   return (
     <EditorWrapper>
       <div className="container" role="main">
-        <h2>새 게시물</h2>
+        <h2>{post.isEditMode ? '수정하기' : '새 게시물'}</h2>
         <div className="mb-3">
           <span>제목</span>
           <input
