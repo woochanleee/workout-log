@@ -5,6 +5,31 @@ import { Context } from 'koa';
 import { extensionList } from '../../../utils/extensionList';
 import Joi from '@hapi/joi';
 import User from '../../models/user';
+import sanitizeHtml from 'sanitize-html';
+
+const sanitizeOption = {
+  allowedTags: [
+    'h1',
+    'h2',
+    'b',
+    'i',
+    'u',
+    's',
+    'p',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'a',
+    'img',
+  ],
+  allowedAttributes: {
+    a: ['href', 'name', 'target'],
+    img: ['src'],
+    li: ['class'],
+  },
+  allowedSchemes: ['data', 'http']
+}
 
 /*
   POST /api/posts
@@ -16,6 +41,7 @@ import User from '../../models/user';
       isPrivate: '비공개'
   }
 */
+
 export const write = async (ctx: any) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
@@ -33,14 +59,15 @@ export const write = async (ctx: any) => {
     ctx.body = result.error;
     return;
   }
-  const { title, body, tags, isPrivate } = ctx.request.body;
+  const { title, body, isPrivate } = ctx.request.body;
+  let tags = ctx.request.body.tags;
+  if (tags && tags.length >= 2) tags =  tags.filter((t) => t !== 'it is just to fill space');
   const time = new Date();
   const month =
     time.getMonth() + 1 < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1;
   const files = ctx.request.files.files;
   const fileDir = `upload/${time.getFullYear().toString()}/${month}`;
   const filesData: Array<string> = [];
-
   const saveDatabase = async () => {
     let user;
     try {
@@ -116,7 +143,7 @@ export const write = async (ctx: any) => {
       const post = new Post({
         id: lastPost ? lastPost.id + 1 : 1,
         title,
-        body,
+        body: sanitizeHtml(body, sanitizeOption),
         tags,
         files: filesData,
         isPrivate,
@@ -148,6 +175,7 @@ export const write = async (ctx: any) => {
         }
 
         let path = `${fileDir}/${fileName}.${extension}`;
+        console.log(file.name, extension);
         if (!extensionList.includes(extension)) {
           ctx.status = 405;
           ctx.body = {
@@ -195,9 +223,17 @@ export const write = async (ctx: any) => {
   }
 };
 
+const removeHtmlAndShorten = body => {
+  const filtered = sanitizeHtml(body, {
+    allowedTags: [],
+  })
+  return filtered.length < 200 ? filtered : `${filtered.slice(0, 200)}...`;
+}
+
 /*
   GET /api/posts?username=&tag=&page=
 */
+
 export const list = async (ctx: Context) => {
   const page = parseInt(ctx.query.page || '1', 10);
 
@@ -232,15 +268,16 @@ export const list = async (ctx: Context) => {
         .concat(myPosts)
         .filter((p1, i, arr) => arr.findIndex((p2) => p1.id === p2.id) === i);
     }
+    posts.sort((a, b) => b.id - a.id);
     const postCount: number = posts.length;
-    posts = posts.slice((page - 1) * 10, page * 10).sort((a, b) => b.id - a.id);
+    posts = posts.slice((page - 1) * 10, page * 10)
     ctx.set('Last-Page', Math.ceil(postCount / 10).toString());
     ctx.body = posts
       .map((post) => post.toJSON())
       .map((post) => ({
         ...post,
         body:
-          post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+          removeHtmlAndShorten(post.body)
       }));
   } catch (e) {
     ctx.throw(500, e);
@@ -295,6 +332,7 @@ export const update = async (ctx: any) => {
   const schema = Joi.object().keys({
     title: Joi.string(),
     files: Joi.any(),
+    body: Joi.string(),
     tags: Joi.array().items(Joi.string()),
     isPrivate: Joi.boolean().required(),
   });
@@ -316,7 +354,11 @@ export const update = async (ctx: any) => {
   const filesData: Array<string> = [];
   let post: any = await Post.findOne({ id }).exec();
   const pathList = post.files;
-
+  const nextData = { ...ctx.request.body  };
+  console.log(nextData);
+  if (nextData.body) {
+    nextData.body = sanitizeHtml(nextData.body);
+  }
   const updateDatabase = async () => {
     try {
       if (!post) {
@@ -328,7 +370,7 @@ export const update = async (ctx: any) => {
           id,
         },
         {
-          ...ctx.request.body,
+          ...nextData,
           files: filesData,
         },
         {
@@ -455,16 +497,19 @@ export const getPostById = async (ctx: Context, next: () => void) => {
   }
   try {
     let post = await Post.findOne({ id, isPrivate: false }).exec();
-    const myPost = await Post.findOne({
-      id,
-      'user.email': ctx.state.user.email,
-    }).exec();
-    if (!post) post = myPost;
+    if (ctx.state.user) {
+      const myPost = await Post.findOne({
+        id,
+        'user.email': ctx.state.user.email,
+      }).exec();
+      if (!post) post = myPost;
+    }
     if (!post) {
       ctx.status = 404;
       return;
     }
     ctx.state.post = post;
+    
     return next();
   } catch (e) {
     ctx.throw(500, e);
