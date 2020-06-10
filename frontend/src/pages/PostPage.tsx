@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
+import PostViewer from '../components/posts/PostViewer';
 
 const PostPage: FC<{}> = () => {
-  console.log(1);
-  return <div>포스트 읽기</div>;
+  return <PostViewer />;
 };
 
 export default PostPage;
