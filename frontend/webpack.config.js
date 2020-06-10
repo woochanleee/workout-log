@@ -42,6 +42,7 @@ module.exports = {
       template: './public/index.html',
     }),
     new Dotenv(),
+    new webpack.HotModuleReplacementPlugin(),
   ],
   devServer: {
     host: 'localhost',
