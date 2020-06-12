@@ -120,7 +120,7 @@ export const write = async (ctx: any) => {
           user = await User.findOneAndUpdate(
             { email: userState.email },
             {
-              workoutDays: userState.workoutDays + 1,
+              workoutDays: lastPost.user.workoutDays + 1,
             },
             {
               new: true,
@@ -236,7 +236,6 @@ const removeHtmlAndShorten = body => {
 
 export const list = async (ctx: Context) => {
   const page = parseInt(ctx.query.page || '1', 10);
-
   if (page < 1) {
     ctx.status = 400;
     return;
@@ -355,7 +354,6 @@ export const update = async (ctx: any) => {
   let post: any = await Post.findOne({ id }).exec();
   const pathList = post.files;
   const nextData = { ...ctx.request.body  };
-  console.log(nextData);
   if (nextData.body) {
     nextData.body = sanitizeHtml(nextData.body);
   }
