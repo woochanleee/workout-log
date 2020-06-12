@@ -19,6 +19,9 @@ const RecommentSchema = new Schema({
   user: {
     email: String,
     username: String,
+    loginType: String,
+    workoutDays: Number,
+    profileImage: String
   },
 });
 
@@ -40,6 +43,9 @@ const CommentSchema = new Schema({
   user: {
     email: String,
     username: String,
+    loginType: String,
+    workoutDays: Number,
+    profileImage: String
   },
 });
 
@@ -70,6 +76,7 @@ const PostSchema = new Schema({
     username: String,
     loginType: String,
     workoutDays: Number,
+    profileImage: String
   },
   comments: {
     type: [CommentSchema],
