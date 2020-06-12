@@ -120,7 +120,7 @@ export const remove = async (ctx: Context) => {
         (c: any) => c.id.toString() !== comment_id,
       );
       if (newComments.join() !== comments.join()) {
-        await Post.findOneAndUpdate(
+        const postValue = await Post.findOneAndUpdate(
           {
             id,
           },
@@ -131,7 +131,7 @@ export const remove = async (ctx: Context) => {
             new: true,
           },
         );
-        ctx.status = 204;
+        ctx.body = postValue;
       } else ctx.status = 404;
     } else {
       ctx.status = 404;
