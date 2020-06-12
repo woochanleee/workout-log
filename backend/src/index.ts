@@ -39,11 +39,6 @@ app.use(cors({
   exposeHeaders: 'Last-Page'
 }));
 app.use(koaStatic("public"));
-app.use(async ctx => {
-  if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {
-    await send(ctx, 'index.html', { root: `${__dirname}/public`})
-  }
-})
 app.use(jwtMiddleware);
 
 app.use(router.routes()).use(router.allowedMethods());
