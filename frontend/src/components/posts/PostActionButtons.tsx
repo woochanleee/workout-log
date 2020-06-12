@@ -2,13 +2,6 @@ import React, { FC, useState } from 'react';
 import styled from 'styled-components';
 import AskRemoveModal from './AskRemoveModal';
 
-const PostActionButtonsBlock = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 2rem;
-  margin-top: -1.5rem;
-`;
-
 const ActionButton = styled.button`
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -44,10 +37,8 @@ const PostActionButtons: FC<{
   };
   return (
     <>
-      <PostActionButtonsBlock>
-        <ActionButton onClick={onEdit}>수정</ActionButton>
-        <ActionButton onClick={onRemoveClick}>삭제</ActionButton>
-      </PostActionButtonsBlock>
+      <ActionButton onClick={onEdit}>수정</ActionButton>
+      <ActionButton onClick={onRemoveClick}>삭제</ActionButton>
       <AskRemoveModal
         visible={modal}
         onConfirm={onConfirm}
