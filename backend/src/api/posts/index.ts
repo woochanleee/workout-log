@@ -31,6 +31,6 @@ post.patch(
 
 posts.use("/:id", postCtrl.getPostById, post.routes());
 posts.use("/:id/like", checkLoggedIn, likes.routes());
-posts.use("/:id/comments", checkLoggedIn, comments.routes());
+posts.use("/:id/comments", comments.routes());
 
 export default posts;
