@@ -132,15 +132,18 @@ export const remove = async (ctx: Context) => {
       return;
     }
     comments[comment_index].recomments = newRecomments;
-    await Post.findOneAndUpdate(
+    const postValue = await Post.findOneAndUpdate(
       {
         id,
       },
       {
         comments,
+      },
+      {
+        new: true
       }
     );
-    ctx.status = 204;
+    ctx.body = postValue;
   } catch (e) {
     ctx.throw(500, e);
   }
@@ -150,6 +153,7 @@ export const remove = async (ctx: Context) => {
   PATCH /api/posts/:id/comments/:commend_id
 */
 export const update = async (ctx: any) => {
+  console.log(ctx.params);
   const schema = Joi.object().keys({
     text: Joi.string().required(),
   });
@@ -192,7 +196,7 @@ export const update = async (ctx: any) => {
     }
     recomments[recomment_index].text = text;
     recomments[recomment_index].isEdited = true;
-
+    comments[comment_id - 1].recomments = recomments;
     await Post.findOneAndUpdate(
       { id },
       {
@@ -202,7 +206,7 @@ export const update = async (ctx: any) => {
         new: true,
       }
     );
-    ctx.body = recomments[recomment_index];
+    ctx.body = comments;
   } catch (e) {
     ctx.throw(500, e);
   }
