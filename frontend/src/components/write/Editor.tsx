@@ -59,7 +59,7 @@ const EditorWrapper = styled.article`
     overflow-x: scroll;
     margin-bottom: 1rem;
     white-space: nowrap;
-    > img {
+    > embed {
       object-fit: cover;
       width: 100%;
       height: auto;
@@ -106,7 +106,7 @@ const Editor: FC<{}> = () => {
   const imageHandler = useCallback(() => {
     const inputEl = document.createElement('input');
     inputEl.setAttribute('type', 'file');
-    inputEl.setAttribute('accept', '.gif, .jpg, .png');
+    inputEl.setAttribute('accept', '.gif, .jpg, .png, .mp4');
     inputEl.setAttribute('multiple', '');
     inputEl.click();
     inputEl.onchange = () => {
@@ -119,9 +119,9 @@ const Editor: FC<{}> = () => {
             formData.append('files', input.files[i]);
             const reader = new FileReader();
             reader.onload = function (e: any) {
-              const imgEl = document.createElement('img');
-              imgEl.setAttribute('src', e.target.result);
-              imageDiv.appendChild(imgEl);
+              const embedEl = document.createElement('embed');
+              embedEl.setAttribute('src', e.target.result);
+              imageDiv.appendChild(embedEl);
             };
             reader.readAsDataURL(input.files[i]);
           }
@@ -185,10 +185,10 @@ const Editor: FC<{}> = () => {
             var reader = new window.FileReader();
             reader.readAsDataURL(response.data);
             reader.onload = function () {
-              const imgEl = document.createElement('img');
+              const embedEl = document.createElement('embed');
               var imageDataUrl = reader.result;
-              imgEl.src = imageDataUrl as string;
-              document.querySelector('#image').appendChild(imgEl);
+              embedEl.src = imageDataUrl as string;
+              document.querySelector('#image').appendChild(embedEl);
               files.append(
                 'files',
                 dataURLtoFile(imageDataUrl, post.filesUrl[i]),
