@@ -16,6 +16,7 @@ export type postType = {
     username?: string;
     email?: string;
     loginType?: string;
+    profileImage?: string
   };
 };
 

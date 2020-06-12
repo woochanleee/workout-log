@@ -25,8 +25,8 @@ export const postState = atom<{
   id?: number,
   files?: string[];
   tags?: string[];
-  likeUsers?: string[];
-  like?: number;
+  likeUsers?: any;
+  likes?: number;
   isPrivate?: boolean;
   title?: string;
   body?: string;
@@ -35,6 +35,7 @@ export const postState = atom<{
     username?: string;
     email?: string;
     loginType?: string;
+    profileImage?: string;
   };
   comments?: [];
   publishedDate?: Date;

@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import styled from 'styled-components';
-import AskRemoveModal from './AskRemoveModal';
+import CommentRemoveModal from './CommentRemoveModal';
 
 const ActionButton = styled.button`
   padding: 0.25rem 0.5rem;
@@ -16,14 +16,15 @@ const ActionButton = styled.button`
     color: #1098ad;
   }
   & + & {
-    margin-left: 0.25rem;
+    margin: 0 0.5rem 0 0.25rem;
   }
 `;
 
-const PostActionButtons: FC<{
+const CommentActionButtons: FC<{
   onEdit: () => void;
   onRemove: () => void;
-}> = ({ onEdit, onRemove }) => {
+  isRecomment: boolean;
+}> = ({ onEdit, onRemove, isRecomment = false }) => {
   const [modal, setModal] = useState(false);
   const onRemoveClick = () => {
     setModal(true);
@@ -39,7 +40,8 @@ const PostActionButtons: FC<{
     <>
       <ActionButton onClick={onEdit}>수정</ActionButton>
       <ActionButton onClick={onRemoveClick}>삭제</ActionButton>
-      <AskRemoveModal
+      <CommentRemoveModal
+        isRecomment={isRecomment}
         visible={modal}
         onConfirm={onConfirm}
         onCancel={onCancel}
@@ -48,4 +50,4 @@ const PostActionButtons: FC<{
   );
 };
 
-export default PostActionButtons;
+export default CommentActionButtons;
