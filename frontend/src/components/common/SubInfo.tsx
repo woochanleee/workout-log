@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 const SubInfoBlock = styled.div<{ hasMarginTop: boolean }>`
   ${(props) =>
@@ -12,7 +12,16 @@ const SubInfoBlock = styled.div<{ hasMarginTop: boolean }>`
   a {
     color: gray !important;
   }
-
+  display: flex;
+  align-items: center;
+  img {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 100%;
+    margin-right: 4px;
+    cursor: pointer;
+  }
   span + span:before {
     color: gray;
     padding-left: 0.25rem;
@@ -23,11 +32,14 @@ const SubInfoBlock = styled.div<{ hasMarginTop: boolean }>`
 
 const SubInfo: FC<{
   username: string;
+  profileImage: string;
   publishedDate: Date;
   hasMarginTop?: boolean;
-}> = ({ username, publishedDate, hasMarginTop }) => {
+}> = ({ username, profileImage, publishedDate, hasMarginTop }) => {
+  const history = useHistory();
   return (
     <SubInfoBlock hasMarginTop={hasMarginTop}>
+      <img onClick={() => history.push(`/@${username}`)} src={profileImage} />
       <span>
         <b>
           <Link to={`/@${username}`}>{username}</Link>
