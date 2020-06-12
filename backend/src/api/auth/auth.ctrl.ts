@@ -133,7 +133,6 @@ export const update = async (ctx: any) => {
           new: true,
         },
       ).exec();
-      console.log(user, ctx.state.emai);
       ctx.body = user;
     } catch (e) {
       ctx.throw(500, e);
