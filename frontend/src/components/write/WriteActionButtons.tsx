@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { writeState } from '../../modules/write';
 import { writePost, updatePost } from '../../lib/api/posts';
+import { userState } from '../../modules/auth';
 
 const WriteActionButtonsBlock = styled.div`
   margin-top: 1rem;
@@ -18,6 +19,7 @@ const WriteActionButtonsBlock = styled.div`
 
 const WriteActionButtons: FC<RouteComponentProps> = ({ history }) => {
   const [post, setPost] = useRecoilState(writeState);
+  const [user, setUser] = useRecoilState(userState);
   const onCancel = () => {
     history.goBack();
   };
@@ -61,6 +63,7 @@ const WriteActionButtons: FC<RouteComponentProps> = ({ history }) => {
           isPrivate: false,
           isEditMode: false,
         });
+        setUser({ ...res.data.user });
         history.push(`/@${res.data.user.username}/${res.data.id}`);
       })
       .catch((err) => {
