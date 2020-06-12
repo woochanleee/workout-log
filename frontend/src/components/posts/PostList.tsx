@@ -10,7 +10,7 @@ import Pagination from './Pagination';
 
 const PostListWrapper = styled.div`
     margin-top 3rem;
-    img {
+    embed {
         width: 100%;
         max-height: 31rem;
         object-fit: cover;
@@ -46,16 +46,21 @@ const PostItemBlock = styled.div`
 
 const PostItem: FC<{ post: postType }> = ({ post }) => {
   const { publishedDate, user, tags, title, body, id, files } = post;
+  console.log(user);
   return (
     <PostItemBlock>
       <h2>
         <Link to={`/@${user.username}/${id}`}>{title}</Link>
       </h2>
-      <SubInfo username={user.username} publishedDate={publishedDate} />
+      <SubInfo
+        username={user.username}
+        profileImage={user.profileImage}
+        publishedDate={publishedDate}
+      />
       <Tags tags={tags} />
       <p>{body}</p>
       {files.length ? (
-        <img src={`${process.env.SERVER_URL}/${files[0]}`} />
+        <embed src={`${process.env.SERVER_URL}/${files[0]}`} />
       ) : (
         ''
       )}
@@ -83,6 +88,7 @@ const PostList: FC<
   useEffect(() => {
     listPosts({ tag, username, page, useremail })
       .then((res) => {
+        console.log(res.data);
         setPosts({
           posts: [...res.data],
           lastPage: parseInt(res.headers['last-page'], 10),
