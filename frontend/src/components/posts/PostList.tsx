@@ -54,11 +54,11 @@ const PostItem: FC<{ post: postType }> = ({ post }) => {
   return (
     <PostItemBlock>
       <h2>
-        <Link to={`/@${user.username}/${id}`}>{title}</Link>
+        <Link to={user && `/@${user.username}/${id}`}>{title}</Link>
       </h2>
       <SubInfo
-        username={user.username}
-        profileImage={user.profileImage}
+        username={user && user.username}
+        profileImage={user && user.profileImage}
         publishedDate={publishedDate}
       />
       <Tags tags={tags} />
