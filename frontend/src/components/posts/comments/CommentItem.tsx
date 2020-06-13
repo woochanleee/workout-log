@@ -16,8 +16,11 @@ const CommentItemBlock = styled.li`
   .pull-left {
     float: left !important;
   }
-  .media .media-object {
-    max-width: 120px;
+  .media,
+  .media-object {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
   }
   .media-object {
     display: block;
@@ -67,6 +70,7 @@ const CommentItemBlock = styled.li`
   }
   .media-comment {
     margin-bottom: 20px;
+    line-break: anywhere;
   }
   .btn-circle {
     font-weight: bold;
@@ -244,7 +248,9 @@ const CommentItem: FC<{
 
         <div className="media-body">
           <div className="well well-lg">
-            <h4 className="media-heading text-uppercase reviews"></h4>
+            <h4 className="media-heading text-uppercase reviews">
+              {user.username}
+            </h4>
             <ul className="media-date text-uppercase reviews list-inline">
               {user.email && user.email === data.user.email ? (
                 <CommentActionButtons
@@ -255,6 +261,8 @@ const CommentItem: FC<{
               ) : (
                 ''
               )}
+              {data.isEdited && `수정됨 • `}
+
               {new Date(data.publishedDate).toLocaleDateString()}
             </ul>
             <p className="media-comment">{data.text}</p>

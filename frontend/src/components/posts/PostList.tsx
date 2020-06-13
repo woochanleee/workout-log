@@ -14,6 +14,7 @@ const PostListWrapper = styled.div`
         width: 100%;
         max-height: 31rem;
         object-fit: cover;
+        
     }
     a {
       color: #000000;
@@ -42,11 +43,14 @@ const PostItemBlock = styled.div`
   p {
     margin-top: 2rem;
   }
+  > div:last-child {
+    white-space: nowrap;
+    overflow-x: scroll;
+  }
 `;
 
 const PostItem: FC<{ post: postType }> = ({ post }) => {
   const { publishedDate, user, tags, title, body, id, files } = post;
-  console.log(user);
   return (
     <PostItemBlock>
       <h2>
@@ -59,11 +63,13 @@ const PostItem: FC<{ post: postType }> = ({ post }) => {
       />
       <Tags tags={tags} />
       <p>{body}</p>
-      {files.length ? (
-        <embed src={`${process.env.SERVER_URL}/${files[0]}`} />
-      ) : (
-        ''
-      )}
+      <div>
+        {files.length
+          ? (files as any).map((f) => (
+              <embed src={`${process.env.SERVER_URL}/${f}`} key={f} />
+            ))
+          : ''}
+      </div>
     </PostItemBlock>
   );
 };
@@ -88,7 +94,6 @@ const PostList: FC<
   useEffect(() => {
     listPosts({ tag, username, page, useremail })
       .then((res) => {
-        console.log(res.data);
         setPosts({
           posts: [...res.data],
           lastPage: parseInt(res.headers['last-page'], 10),
