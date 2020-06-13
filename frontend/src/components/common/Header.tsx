@@ -56,6 +56,13 @@ const HeaaderWrapper = styled.header`
   }
 `;
 
+const MarqueeItem = React.memo<{ user: any }>(({ user }) => (
+  <Marquee direction="left">
+    {user.username}님 안녕하세요. {user.workoutDays}일째 운동중입니다!💪 검색
+    형식은 닉네임=이우찬 형태로 태그, 이메일 검색 가능합니다!
+  </Marquee>
+));
+
 const Header: FC<{}> = () => {
   const [user, setUser] = useRecoilState(userState);
   const loginHandler = useCallback((data) => {
@@ -203,11 +210,7 @@ const Header: FC<{}> = () => {
                     </LogoutBlock>
                   </li>
                   <li className="nav-item greet">
-                    <Marquee direction="left">
-                      {user.username}님 안녕하세요. {user.workoutDays}일째
-                      운동중입니다!💪 검색 형식은 닉네임=이우찬 형태로 태그,
-                      이메일 검색 가능합니다!
-                    </Marquee>
+                    <MarqueeItem user={user} />
                   </li>
                 </>
               ) : (
