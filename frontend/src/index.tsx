@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import { useRecoilState } from 'recoil';
 import App from './App';
 import './index.css';
@@ -51,7 +51,7 @@ function LoadUser({ children }) {
   return null;
 }
 
-dotenv.config();
+// dotenv.config();
 
 ReactDOM.render(
   <RecoilRoot>
