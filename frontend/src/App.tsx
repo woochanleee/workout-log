@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import { LoginPage, PostListPage, PostPage, WritePage, NoMatch } from './pages';
 import { Header } from './components/common';
 import { writeState } from './modules/write';
+import MyPage from './components/mypage/MyPage';
 
 const App: FC<{}> = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const App: FC<{}> = () => {
         <Route component={LoginPage} path="/login" />
         <Route component={WritePage} path="/write" />
         <Route component={PostPage} path="/@:username/:postId" />
+        <Route component={MyPage} path="/mypage" />
         <Route component={NoMatch} />
       </Switch>
     </>
