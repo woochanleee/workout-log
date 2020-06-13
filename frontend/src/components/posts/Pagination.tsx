@@ -31,15 +31,20 @@ const Pagination: FC<{
   username: string;
   tag: string;
 }> = ({ page, lastPage, username, tag }) => {
+  if (lastPage === 0) lastPage = 1;
   const history = useHistory();
   return (
     <PaginationBlock>
       <button
         type="button"
-        className={`btn ${page === 1 ? 'disabled' : 'btn-dark'}`}
+        className={`btn ${
+          page === 1 || page > lastPage ? 'disabled' : 'btn-dark'
+        }`}
         onClick={() => {
           history.push(
-            page === 1 ? '' : buildLink({ username, tag, page: page - 1 }),
+            page === 1 || page > lastPage
+              ? ''
+              : buildLink({ username, tag, page: page - 1 }),
           );
         }}
       >
@@ -48,10 +53,10 @@ const Pagination: FC<{
       <PageNumber>{page}</PageNumber>
       <button
         type="button"
-        className={`btn ${page === lastPage ? 'disabled' : 'btn-dark'}`}
+        className={`btn ${page >= lastPage ? 'disabled' : 'btn-dark'}`}
         onClick={() => {
           history.push(
-            page === lastPage
+            page >= lastPage
               ? ''
               : buildLink({ username, tag, page: page + 1 }),
           );
