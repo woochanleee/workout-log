@@ -28,7 +28,7 @@ const WriteActionButtons: FC<RouteComponentProps> = ({ history }) => {
     post.files.set('body', post.body);
     post.files.set('isPrivate', JSON.stringify(post.isPrivate));
     if (post.tags.length === 1) {
-      post.files.append('tags', 'it is just to fill space');
+      post.files.append('tags', process.env.DUMMY_TAG);
     }
     [...new Set(post.tags)].forEach((t) => post.files.append('tags', t));
     if (post.body === '<p><br></p>') return alert('내용은 공백일 수 없습니다.');
