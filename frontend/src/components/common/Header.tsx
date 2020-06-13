@@ -152,7 +152,7 @@ const Header: FC<{}> = () => {
     );
   }, [user]);
   useEffect(() => {
-    if (user.username.length) {
+    if (user.username && user.username.length) {
       try {
         localStorage.setItem('user', JSON.stringify(user));
       } catch (e) {
@@ -181,7 +181,7 @@ const Header: FC<{}> = () => {
           </Button>
           <div className="navbar-collapse collapse" id="navbarCollapse">
             <ul className="navbar-nav mr-auto">
-              {user.username.length ? (
+              {user.username && user.username.length ? (
                 <>
                   <li className="nav-item">
                     <NavLink
