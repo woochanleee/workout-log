@@ -39,7 +39,14 @@ const SubInfo: FC<{
   const history = useHistory();
   return (
     <SubInfoBlock hasMarginTop={hasMarginTop}>
-      <img onClick={() => history.push(`/@${username}`)} src={profileImage} />
+      <img
+        onClick={() => history.push(`/@${username}`)}
+        src={
+          profileImage.indexOf(':') !== -1
+            ? profileImage
+            : `${process.env.SERVER_URL}/${profileImage}`
+        }
+      />
       <span>
         <b>
           <Link to={`/@${username}`}>{username}</Link>
