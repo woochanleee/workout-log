@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
@@ -12,11 +12,11 @@ import { check } from './lib/api/auth';
 
 function LoadUser({ children }) {
   const [user, setUser] = useRecoilState(userState);
-
+  const [isRetuenTime, setIsReturnTime] = useState(false);
   useEffect(() => {
     try {
       const userValue = localStorage.getItem('user');
-      if (!userValue) return;
+      if (!userValue) return setIsReturnTime(true);
       setUser(JSON.parse(userValue));
       check()
         .then((res) => {
@@ -45,8 +45,10 @@ function LoadUser({ children }) {
     } catch (e) {
       console.log('localStorage is not working');
     }
+    setIsReturnTime(true);
   }, []);
-  return children;
+  if (isRetuenTime) return children;
+  return null;
 }
 
 dotenv.config();
