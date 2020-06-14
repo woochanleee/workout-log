@@ -231,7 +231,7 @@ const removeHtmlAndShorten = body => {
 }
 
 /*
-  GET /api/posts?username=&tag=&page=
+  GET /api/posts?username=&tag=&page=&useremail=
 */
 
 export const list = async (ctx: Context) => {
