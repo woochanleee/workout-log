@@ -38,6 +38,7 @@ const PostViewerWrapper = styled.div`
       width: 20px;
       height: 20px;
       cursor: pointer;
+      margin-right: 4px;
     }
     span {
       margin-right: 4px;

@@ -51,6 +51,12 @@ const EditorWrapper = styled.article`
   }
   .ql-toolbar.ql-snow {
     height: 2.5rem;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    ::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
+  }
+}
   }
   #image {
     width: 100%;
