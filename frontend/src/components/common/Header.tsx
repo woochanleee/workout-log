@@ -110,6 +110,8 @@ const Header: FC<{}> = () => {
   const history = useHistory();
   const onSearch = useCallback((e) => {
     e.preventDefault();
+    console.log(1);
+    console.log(e.target.childNodes);
     const query = e.target.childNodes[0].value.split('=');
     const queryWord = query[1];
 
@@ -124,7 +126,7 @@ const Header: FC<{}> = () => {
         history.push(`/?email=${queryWord}`);
         break;
       default:
-        console.log(1);
+        alert('검색 형식을 확인해주세요!');
         break;
     }
   }, []);
