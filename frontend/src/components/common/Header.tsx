@@ -7,6 +7,7 @@ import { useRecoilState } from 'recoil';
 import Marquee from 'react-double-marquee';
 import { userState } from '../../modules/auth';
 import * as authApi from '../../lib/api/auth';
+import headerToggleHandler from '../../lib/headerToggleHandler';
 
 const Spacer = styled.div`
   height: 61px;
@@ -81,11 +82,8 @@ const Header: FC<{}> = () => {
           email: res.data.email,
           loginType: res.data.loginType,
         });
+        headerToggleHandler();
       })
-      .catch((err) => console.log(err));
-    authApi
-      .check()
-      .then((res) => console.log(res))
       .catch((err) => console.log(err));
   }, []);
   const logoutHandler = useCallback(
@@ -102,6 +100,7 @@ const Header: FC<{}> = () => {
             email: '',
             loginType: '',
           });
+          headerToggleHandler();
         })
         .catch((err) => console.log(err));
     },
@@ -110,20 +109,21 @@ const Header: FC<{}> = () => {
   const history = useHistory();
   const onSearch = useCallback((e) => {
     e.preventDefault();
-    console.log(1);
-    console.log(e.target.childNodes);
     const query = e.target.childNodes[0].value.split('=');
     const queryWord = query[1];
 
     switch (query[0].toString()) {
       case '닉네임':
         history.push(`/@${queryWord}`);
+        headerToggleHandler();
         break;
       case '태그':
         history.push(`/?tag=${queryWord}`);
+        headerToggleHandler();
         break;
       case '이메일':
         history.push(`/?email=${queryWord}`);
+        headerToggleHandler();
         break;
       default:
         alert('검색 형식을 확인해주세요!');
@@ -137,7 +137,7 @@ const Header: FC<{}> = () => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     e.preventDefault();
-    ($('#navbarCollapse') as any).collapse('toggle');
+    headerToggleHandler();
   };
   useEffect(() => {
     $('.dropdown').hover(
@@ -190,6 +190,7 @@ const Header: FC<{}> = () => {
                       activeStyle={activeStyle}
                       className="nav-link"
                       to="/write"
+                      onClick={headerToggleHandler}
                     >
                       <span className="mb-0">WRITE</span>
                     </NavLink>
@@ -199,6 +200,7 @@ const Header: FC<{}> = () => {
                       activeStyle={activeStyle}
                       className="nav-link"
                       to="/mypage"
+                      onClick={headerToggleHandler}
                     >
                       <span className="mb-0">MYPAGE</span>
                     </NavLink>
