@@ -1,4 +1,6 @@
 # workout-log(운동 일지)
+[웹사이트](http://workoutlog.club)
+http://workoutlog.club
 
 #### 목차
 
