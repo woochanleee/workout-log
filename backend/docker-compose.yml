@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo:4.0
+    container_name: mongo
+    ports:
+      - '27017:27017'
+
+  workoutlog:
+    container_name: workoutlog
+    image: woochanlee/workoutlog:0.0.6
+    ports:
+      - '5000:5000'
+    links:
+      - 'mongo:mongo'
