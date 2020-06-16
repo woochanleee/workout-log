@@ -140,7 +140,7 @@ const CommentItemBlock = styled.li`
 `;
 
 const RecommentBlock = styled.div`
-  margin-left: 4rem;
+  margin-left: 1rem;
 `;
 
 const CommentItem: FC<{
@@ -249,7 +249,7 @@ const CommentItem: FC<{
         <div className="media-body">
           <div className="well well-lg">
             <h4 className="media-heading text-uppercase reviews">
-              {user.username}
+              {data.user.username}
             </h4>
             <ul className="media-date text-uppercase reviews list-inline">
               {user.email && user.email === data.user.email ? (
