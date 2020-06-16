@@ -6,7 +6,7 @@ import { v1 as uuidv1 } from 'uuid';
 import loginTypeList from '../../../utils/loginTypeList';
 import User from '../../models/user';
 import Post from '../../models/post';
-import { extensionList } from '.S./../../utils/extensionList';
+import { extensionList } from './utils/extensionList';
 
 /*
     POST /api/auth/login
@@ -88,6 +88,14 @@ export const leave = async (ctx: Context) => {
   const { user } = ctx.state;
   try {
     if (user) {
+      if (user.profileImage.indexOf(':') === -1)
+        await deleteFile(user.profileImage);
+      const posts: any = await Post.find({ 'user.email': user.email }).exec();
+      for (let i = 0; i < posts.length; i++) {
+        for (let j = 0; j < posts[i].files.length; j++) {
+          await deleteFile(posts[i].files[j]);
+        }
+      }
       await User.findOneAndRemove({ email: user.email });
       await Post.deleteMany({ 'user.email': user.email }).exec();
       ctx.cookies.set('access_token');
@@ -107,7 +115,7 @@ export const update = async (ctx: any) => {
   });
   const result = schema.validate({
     ...ctx.request.body,
-    file: ctx.request.files.file,
+    file: ctx.request.files && ctx.request.files.file,
   });
   if (result.error) {
     ctx.status = 400;
@@ -116,6 +124,7 @@ export const update = async (ctx: any) => {
   }
   const { username } = ctx.request.body;
   const file = ctx.request.files.file;
+  console.log(ctx.request.files);
   const fileDir = `upload/profileImage`;
   let profileData: string;
 
@@ -171,7 +180,7 @@ export const update = async (ctx: any) => {
       .catch((err: any) => console.log(err));
     await updateDatabase();
   } else {
-    profileData = 'upload/profileImage/default.PNG';
+    profileData = ctx.state.user.profileImage;
     await updateDatabase();
   }
 };
