@@ -59,8 +59,11 @@ const HeaaderWrapper = styled.header`
 
 const MarqueeItem = React.memo<{ user: any }>(({ user }) => (
   <Marquee direction="left">
-    {user.username}님 안녕하세요. {user.workoutDays}일째 운동중입니다!💪 검색
-    형식은 닉네임=이우찬 형태로 태그, 이메일 검색 가능합니다!
+    {user.username}님 안녕하세요.{' '}
+    {user.workoutDays
+      ? `${user.workoutDays}일째 운동중입니다!💪`
+      : '0일째 운동중입니다. 분발하세요!🤬'}
+    검색 형식은 닉네임=이우찬 형태로 태그, 이메일 검색 가능합니다!
   </Marquee>
 ));
 
