@@ -112,7 +112,7 @@ const Editor: FC<{}> = () => {
   const imageHandler = useCallback(() => {
     const inputEl = document.createElement('input');
     inputEl.setAttribute('type', 'file');
-    inputEl.setAttribute('accept', '.gif, .jpg, .png, .mp4');
+    inputEl.setAttribute('accept', '.gif, .jpg, .png');
     inputEl.setAttribute('multiple', '');
     inputEl.click();
     inputEl.onchange = () => {

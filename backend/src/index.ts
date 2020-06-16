@@ -5,20 +5,23 @@ import bodyparser from "koa-bodyparser";
 import mongoose from "mongoose";
 import cors from "@koa/cors";
 import koaStatic from "koa-static";
-import send from 'koa-send';
 
 import api from "./api";
 import jwtMiddleware from './lib/jwtMiddleware';
 
 dotenv.config();
 
-const { PORT, MONGO_URI } = process.env;
+const { PORT, MONGO_URI, USERNAME, PW } = process.env;
 
 mongoose
   .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
+    auth: {
+      user: USERNAME,
+      password: PW
+    },
+   useNewUrlParser: true,
+   useFindAndModify: false,
+   useUnifiedTopology: true,
   })
   .then(() => {
     console.log("➡️  Connected to MongoDB");
@@ -34,7 +37,7 @@ router.use("/api", api.routes());
 
 app.use(bodyparser());
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://workoutlog.club',
   credentials: true,
   exposeHeaders: 'Last-Page'
 }));

@@ -28,8 +28,8 @@ const sanitizeOption = {
     img: ['src'],
     li: ['class'],
   },
-  allowedSchemes: ['data', 'http']
-}
+  allowedSchemes: ['data', 'http'],
+};
 
 /*
   POST /api/posts
@@ -61,7 +61,8 @@ export const write = async (ctx: any) => {
   }
   const { title, body, isPrivate } = ctx.request.body;
   let tags = ctx.request.body.tags;
-  if (tags && tags.length >= 2) tags =  tags.filter((t) => t !== 'it is just to fill space');
+  if (tags && tags.length >= 2)
+    tags = tags.filter((t) => t !== process.env.DUMMY_TAG);
   const time = new Date();
   const month =
     time.getMonth() + 1 < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1;
@@ -71,10 +72,12 @@ export const write = async (ctx: any) => {
   const saveDatabase = async () => {
     let user;
     try {
-      const lastPost: any = await Post.findOne()
+      const userState = ctx.state.user;
+      const lastPost: any = await Post.findOne({
+        'user.email': userState.email,
+      })
         .sort({ publishedDate: -1 })
         .exec();
-      const userState = ctx.state.user;
       if (!lastPost) {
         user = await User.findOneAndUpdate(
           { email: userState.email },
@@ -223,12 +226,12 @@ export const write = async (ctx: any) => {
   }
 };
 
-const removeHtmlAndShorten = body => {
+const removeHtmlAndShorten = (body) => {
   const filtered = sanitizeHtml(body, {
     allowedTags: [],
-  })
+  });
   return filtered.length < 200 ? filtered : `${filtered.slice(0, 200)}...`;
-}
+};
 
 /*
   GET /api/posts?username=&tag=&page=&useremail=
@@ -269,14 +272,13 @@ export const list = async (ctx: Context) => {
     }
     posts.sort((a, b) => b.id - a.id);
     const postCount: number = posts.length;
-    posts = posts.slice((page - 1) * 10, page * 10)
+    posts = posts.slice((page - 1) * 10, page * 10);
     ctx.set('Last-Page', Math.ceil(postCount / 10).toString());
     ctx.body = posts
       .map((post) => post.toJSON())
       .map((post) => ({
         ...post,
-        body:
-          removeHtmlAndShorten(post.body)
+        body: removeHtmlAndShorten(post.body),
       }));
   } catch (e) {
     ctx.throw(500, e);
@@ -353,7 +355,7 @@ export const update = async (ctx: any) => {
   const filesData: Array<string> = [];
   let post: any = await Post.findOne({ id }).exec();
   const pathList = post.files;
-  const nextData = { ...ctx.request.body  };
+  const nextData = { ...ctx.request.body };
   if (nextData.body) {
     nextData.body = sanitizeHtml(nextData.body);
   }
@@ -507,7 +509,7 @@ export const getPostById = async (ctx: Context, next: () => void) => {
       return;
     }
     ctx.state.post = post;
-    
+
     return next();
   } catch (e) {
     ctx.throw(500, e);
