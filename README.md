@@ -33,16 +33,17 @@
 ## 기술 스택
 
 1. Backend
-   - 언어 : JavaScript(Node.js)
-   - 배포 환경 : Amazon Web Service EC2
-   - 데이터베이스 : mysql, redis
+   - 언어 : JavaScript(Node.js, koa)
+   - 배포 환경 : Amazon Web Service EC2, docker, dockhub
+   - 데이터베이스 : mongodb
    - 인증 : JWT
 2. Frontend
    - 라이브러리 : React
    - 언어 : HTML5, CSS3, JavaScript
-   - 스타일 : scss, styled-component
+   - 스타일 : bootstrap, styled-component
    - 패키지 관리 : Yarn
    - 통신 : Axios
+   - 상태관리 : recoil
 
 ## 서비스 기능
 
@@ -60,26 +61,28 @@
 - 사용자 닉네임
 - 운동일수
 - 이메일
-- 사용자의 타임라인
-  - 무한 스크롤 형식(스크롤 당 10개씩)
 
 #### 타임라인
 
-- 무한 스크롤 형식(스크롤 당 10개씩)
+- 페이지네이션 형식(스크롤 당 10개씩)
   - 전체 사용자의 게시물 최근 순으로
   - 자신의 게시물 삭제 가능
+  - 자신의 게시물 수정 가능
+- ?tag=&page=&username=&user&useremail= 검색 가능
 
 #### 게시물
 
-- 게시물 작성(본문 : 최대 256자, 사진 : 최대 4장)
+- 게시물 작성
 - 게시물 삭제
 - 게시물 좋아요
-- 댓글 작성(최대 256자, 사진 X)
+- 댓글 작성(사진 X)
+- 수정, 삭제 가능
   - 대댓글 작성
+    - 수정 삭제 가능
+ 
 
 #### 계정
 
 - 로그아웃
-- 계정 비활성
 - 회원탈퇴
-- 사용자 닉네임 프로필 이미지 수정
+- 사용자 닉네임, 이미지 수정
