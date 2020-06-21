@@ -6,7 +6,7 @@ import { v1 as uuidv1 } from 'uuid';
 import loginTypeList from '../../../utils/loginTypeList';
 import User from '../../models/user';
 import Post from '../../models/post';
-import { extensionList } from './utils/extensionList';
+import { extensionList } from '../../../utils/extensionList';
 
 /*
     POST /api/auth/login
@@ -88,12 +88,11 @@ export const leave = async (ctx: Context) => {
   const { user } = ctx.state;
   try {
     if (user) {
-      if (user.profileImage.indexOf(':') === -1)
-        await deleteFile(user.profileImage);
+      if (user.profileImage.indexOf(':') === -1) await deleteFile(user.profileImage)
       const posts: any = await Post.find({ 'user.email': user.email }).exec();
       for (let i = 0; i < posts.length; i++) {
         for (let j = 0; j < posts[i].files.length; j++) {
-          await deleteFile(posts[i].files[j]);
+          await deleteFile(posts[i].files[j])
         }
       }
       await User.findOneAndRemove({ email: user.email });
@@ -124,7 +123,6 @@ export const update = async (ctx: any) => {
   }
   const { username } = ctx.request.body;
   const file = ctx.request.files.file;
-  console.log(ctx.request.files);
   const fileDir = `upload/profileImage`;
   let profileData: string;
 
