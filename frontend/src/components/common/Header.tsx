@@ -70,12 +70,12 @@ const MarqueeItem = React.memo<{ user: any }>(({ user }) => (
 const Header: FC<{}> = () => {
   const [user, setUser] = useRecoilState(userState);
   const loginHandler = useCallback((data) => {
-    const { Ut } = data;
+    const { Rt } = data;
     authApi
       .login({
-        username: Ut.Bd,
-        email: Ut.Eu,
-        profileImage: Ut.iL,
+        username: Rt.Bd,
+        email: Rt.Bu,
+        profileImage: Rt.dL,
       })
       .then((res) => {
         setUser({
