@@ -110,6 +110,13 @@ const PostList: FC<
             : ''}
         </div>
       </div>
+      <ins
+        className="kakao_ad_area"
+        style={{ display: 'none' }}
+        data-ad-unit="DAN-1jydr1hfudgz8"
+        data-ad-width="320"
+        data-ad-height="100"
+      ></ins>
       <Pagination
         page={parseInt(page, 10)}
         lastPage={posts.lastPage}
