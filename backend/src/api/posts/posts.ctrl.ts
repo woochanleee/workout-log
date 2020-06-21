@@ -133,7 +133,7 @@ export const write = async (ctx: any) => {
           user = await User.findOneAndUpdate(
             { email: userState.email },
             {
-              workoutDays: 0,
+              workoutDays: 1,
             },
             {
               new: true,
