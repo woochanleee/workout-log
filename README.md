@@ -1,7 +1,6 @@
 # workout-log(운동 일지)
-- ~ 2020/07/23(목)
-- 레포지토리 이전
-- [workout-log oraganization](https://github.com/workout-log)
+- ~ 2020/07/23(목) 까지 [본 레포지토리](https://github.com/woochanleee/workout-log)
+- 레포지토리 이전 -> [workout-log oraganization](https://github.com/workout-log)
 
 [웹사이트](http://workoutlog.club)
 http://workoutlog.club
